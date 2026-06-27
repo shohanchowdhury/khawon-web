@@ -6,18 +6,24 @@ import TopFoodCard from '../components/TopFoodCard'
 
 export default function Catalogue() {
   const [query, setQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
   const [foods, setFoods] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(query), 300)
+    return () => clearTimeout(timer)
+  }, [query])
+
+  useEffect(() => {
     setLoading(true)
     setError('')
-    getFoodCatalogue(query)
+    getFoodCatalogue(debouncedQuery)
       .then(setFoods)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
-  }, [query])
+  }, [debouncedQuery])
 
   return (
     <div className="page">
@@ -49,7 +55,7 @@ export default function Catalogue() {
         {!loading && !error && (
           <p className="catalogue-count muted">
             {foods.length} item{foods.length !== 1 ? 's' : ''}
-            {query.trim() ? ` matching "${query.trim()}"` : ''}
+            {debouncedQuery.trim() ? ` matching "${debouncedQuery.trim()}"` : ''}
           </p>
         )}
 

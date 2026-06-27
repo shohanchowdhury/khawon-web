@@ -1,4 +1,4 @@
-export default function FoodImage({ name, imageUrl, className = '' }) {
+export default function FoodImage({ name, imageUrl, className = '', priority = false }) {
   const letter = (name || '?').trim().charAt(0).toUpperCase()
 
   if (imageUrl) {
@@ -7,7 +7,8 @@ export default function FoodImage({ name, imageUrl, className = '' }) {
         src={imageUrl}
         alt={name}
         className={`food-card__image ${className}`.trim()}
-        loading="lazy"
+        loading={priority ? 'eager' : 'lazy'}
+        fetchPriority={priority ? 'high' : 'auto'}
       />
     )
   }

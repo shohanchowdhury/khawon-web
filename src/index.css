@@ -221,7 +221,49 @@ textarea {
 }
 
 /* Results */
-.results-header h1 {
+.food-hero {
+  margin-bottom: 2.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.food-hero__media {
+  aspect-ratio: 21 / 9;
+  border-radius: 0;
+  max-height: 320px;
+}
+
+.food-hero__media.food-card__placeholder {
+  font-size: 4rem;
+  max-height: 320px;
+}
+
+.food-hero__text {
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.food-hero__text h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  color: var(--text);
+}
+
+.food-hero__desc {
+  margin: 0.5rem 0 0;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.food-restaurants {
+  margin-top: 0.5rem;
+}
+
+.results-header h1,
+.results-header h2 {
   font-size: clamp(1.5rem, 4vw, 2.25rem);
   margin: 0 0 0.5rem;
 }
