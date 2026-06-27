@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getFoodCatalogue } from '../api/client'
+import { getRestaurantCatalogue } from '../api/client'
 import NavBar from '../components/NavBar'
-import TopFoodCard from '../components/TopFoodCard'
+import RestaurantCard from '../components/RestaurantCard'
 
-export default function Catalogue() {
+export default function RestaurantCatalogue() {
   const [query, setQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
-  const [foods, setFoods] = useState([])
+  const [restaurants, setRestaurants] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -19,8 +19,8 @@ export default function Catalogue() {
   useEffect(() => {
     setLoading(true)
     setError('')
-    getFoodCatalogue(debouncedQuery)
-      .then(setFoods)
+    getRestaurantCatalogue(debouncedQuery)
+      .then(setRestaurants)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
   }, [debouncedQuery])
@@ -34,51 +34,55 @@ export default function Catalogue() {
       <main className="page-content">
         <div className="catalogue-header">
           <div>
-            <h1>Food catalogue</h1>
+            <h1>Restaurant catalogue</h1>
             <p className="muted">
-              Browse every food type on Khawon — tap one to find restaurants
+              Browse every restaurant on Khawon — tap one for details and reviews
             </p>
           </div>
           <Link to="/" className="back-link">← Back to home</Link>
         </div>
 
         <p className="catalogue-crosslink muted">
-          Looking for restaurants?{' '}
-          <Link to="/restaurants">Browse restaurant catalogue →</Link>
+          Looking for foods?{' '}
+          <Link to="/catalogue">Browse food catalogue →</Link>
         </p>
 
         <label className="catalogue-search">
-          Filter catalogue
+          Filter restaurants
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Filter by name — biriyani, fuchka..."
+            placeholder="Filter by name, area, or address..."
           />
         </label>
 
         {!loading && !error && (
           <p className="catalogue-count muted">
-            {foods.length} item{foods.length !== 1 ? 's' : ''}
+            {restaurants.length} restaurant{restaurants.length !== 1 ? 's' : ''}
             {debouncedQuery.trim() ? ` matching "${debouncedQuery.trim()}"` : ''}
           </p>
         )}
 
-        {loading && <p className="loading">Loading catalogue...</p>}
+        {loading && <p className="loading">Loading restaurants...</p>}
         {error && <div className="error-box"><p>{error}</p></div>}
 
-        {!loading && !error && foods.length === 0 && (
+        {!loading && !error && restaurants.length === 0 && (
           <p className="empty">
             {query.trim()
-              ? `No foods match "${query.trim()}".`
-              : 'No food types yet. Sign in to add the first one!'}
+              ? `No restaurants match "${query.trim()}".`
+              : 'No restaurants yet. Sign in to add the first one!'}
           </p>
         )}
 
-        {!loading && foods.length > 0 && (
-          <div className="top-foods__grid catalogue-grid">
-            {foods.map((food) => (
-              <TopFoodCard key={food.id} food={food} />
+        {!loading && restaurants.length > 0 && (
+          <div className="restaurant-grid catalogue-restaurant-grid">
+            {restaurants.map((restaurant) => (
+              <RestaurantCard
+                key={restaurant.id}
+                restaurant={restaurant}
+                showFoodTypes
+              />
             ))}
           </div>
         )}

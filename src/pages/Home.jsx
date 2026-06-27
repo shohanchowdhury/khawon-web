@@ -1,62 +1,41 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { getTopFoodTypes } from '../api/client'
+import { getTopFoodTypes, listFoodTypes } from '../api/client'
+import { buildCarouselFoods, HOME_CAROUSEL_LIMIT } from '../config/featuredFoods'
 import NavBar from '../components/NavBar'
-import SearchBar from '../components/SearchBar'
-import TopFoodCard from '../components/TopFoodCard'
+import TopFoodCarousel from '../components/TopFoodCarousel'
 
 export default function Home() {
-  const [topFoods, setTopFoods] = useState([])
+  const [carouselFoods, setCarouselFoods] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    getTopFoodTypes(8)
-      .then(setTopFoods)
+    Promise.all([listFoodTypes(), getTopFoodTypes(12)])
+      .then(([allFoods, topList]) => {
+        setCarouselFoods(buildCarouselFoods(allFoods, topList).slice(0, HOME_CAROUSEL_LIMIT))
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
   }, [])
 
   return (
-    <div className="home-page">
-      <NavBar />
+    <div className="home-page home-page--feed">
+      <NavBar showSearch />
 
-      <section className="hero hero--compact">
-        <p className="hero__eyebrow">Bangladesh food finder</p>
-        <h1 className="hero__title">Find the best places to eat</h1>
-        <p className="hero__subtitle">
-          Search by food type, explore ranked restaurants, and share your reviews.
-        </p>
-        <SearchBar large />
-      </section>
-
-      <section className="top-foods">
-        <div className="top-foods__inner">
-          <h2 className="top-foods__heading">Top foods in Bangladesh</h2>
-          <p className="top-foods__subheading muted">
-            Ranked by reviews — tap a food to see the best spots
-          </p>
-
-          {loading && <p className="loading">Loading top foods...</p>}
-          {error && <div className="error-box"><p>{error}</p></div>}
-
-          {!loading && !error && topFoods.length === 0 && (
-            <p className="empty">No food types yet. Be the first to add one!</p>
-          )}
-
-          {!loading && topFoods.length > 0 && (
-            <div className="top-foods__grid">
-              {topFoods.map((food) => (
-                <TopFoodCard key={food.id} food={food} />
-              ))}
-            </div>
-          )}
-
-          <p className="top-foods__footer">
-            <Link to="/catalogue" className="catalogue-link">Browse full food catalogue →</Link>
-          </p>
+      {loading && <p className="loading home-page__loading">Loading...</p>}
+      {error && (
+        <div className="error-box home-page__error">
+          <p>{error}</p>
         </div>
-      </section>
+      )}
+
+      {!loading && !error && carouselFoods.length > 0 && (
+        <TopFoodCarousel foods={carouselFoods} variant="focused" />
+      )}
+
+      {!loading && !error && carouselFoods.length === 0 && (
+        <p className="empty home-page__loading">No food types yet.</p>
+      )}
     </div>
   )
 }

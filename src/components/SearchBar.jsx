@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-export default function SearchBar({ large = false, defaultValue = '' }) {
+export default function SearchBar({ large = false, nav = false, defaultValue = '' }) {
   const [query, setQuery] = useState(defaultValue)
   const navigate = useNavigate()
 
@@ -12,8 +12,14 @@ export default function SearchBar({ large = false, defaultValue = '' }) {
     navigate(`/search?q=${encodeURIComponent(trimmed)}`)
   }
 
+  const className = [
+    'search-bar',
+    large ? 'search-bar--large' : '',
+    nav ? 'search-bar--nav' : '',
+  ].filter(Boolean).join(' ')
+
   return (
-    <form className={`search-bar ${large ? 'search-bar--large' : ''}`} onSubmit={handleSubmit}>
+    <form className={className} onSubmit={handleSubmit}>
       <input
         type="text"
         value={query}

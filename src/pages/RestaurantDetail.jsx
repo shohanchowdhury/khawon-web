@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { getRestaurant, getRestaurantReviews } from '../api/client'
+import { useAuth } from '../context/AuthContext'
 import NavBar from '../components/NavBar'
+import FoodImage from '../components/FoodImage'
 import ReviewForm from '../components/ReviewForm'
 import StarRating from '../components/StarRating'
 
 export default function RestaurantDetail() {
   const { id } = useParams()
+  const { isAuthenticated } = useAuth()
   const [searchParams] = useSearchParams()
   const foodTypeId = Number(searchParams.get('foodTypeId'))
   const searchQuery = searchParams.get('q') || ''
@@ -54,14 +57,29 @@ export default function RestaurantDetail() {
 
         {restaurant && (
           <>
-            <section className="detail-header">
-              <h1>{restaurant.name}</h1>
-              {restaurant.area && <span className="badge badge--large">{restaurant.area}</span>}
-              <div className="detail-meta">
-                <StarRating rating={restaurant.average_rating} size="lg" />
-                <span className="review-count">
-                  {restaurant.review_count} review{restaurant.review_count !== 1 ? 's' : ''}
-                </span>
+            <section className="food-hero restaurant-hero">
+              <FoodImage
+                name={restaurant.name}
+                imageUrl={restaurant.image_url}
+                className="food-hero__media"
+                priority
+              />
+              <div className="food-hero__text detail-header">
+                <div className="detail-header__row">
+                  <h1>{restaurant.name}</h1>
+                  {isAuthenticated && (
+                    <Link to={`/manage/restaurant/${restaurant.id}`} className="edit-link">
+                      Edit
+                    </Link>
+                  )}
+                </div>
+                {restaurant.area && <span className="badge badge--large">{restaurant.area}</span>}
+                <div className="detail-meta">
+                  <StarRating rating={restaurant.average_rating} size="lg" />
+                  <span className="review-count">
+                    {restaurant.review_count} review{restaurant.review_count !== 1 ? 's' : ''}
+                  </span>
+                </div>
               </div>
             </section>
 
@@ -72,6 +90,13 @@ export default function RestaurantDetail() {
                 <p>
                   <a href={restaurant.google_maps_url} target="_blank" rel="noreferrer">
                     View on Google Maps
+                  </a>
+                </p>
+              )}
+              {restaurant.website_url && (
+                <p>
+                  <a href={restaurant.website_url} target="_blank" rel="noreferrer">
+                    Visit website
                   </a>
                 </p>
               )}

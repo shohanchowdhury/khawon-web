@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { searchFood } from '../api/client'
+import { useAuth } from '../context/AuthContext'
 import FoodImage from '../components/FoodImage'
 import SearchBar from '../components/SearchBar'
 import NavBar from '../components/NavBar'
@@ -8,6 +9,7 @@ import RestaurantCard from '../components/RestaurantCard'
 
 export default function SearchResults() {
   const [searchParams] = useSearchParams()
+  const { isAuthenticated } = useAuth()
   const query = searchParams.get('q') || ''
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -56,7 +58,14 @@ export default function SearchResults() {
                 priority
               />
               <div className="food-hero__text">
-                <h1>{result.food_type.name}</h1>
+                <div className="detail-header__row">
+                  <h1>{result.food_type.name}</h1>
+                  {isAuthenticated && (
+                    <Link to={`/manage/food/${result.food_type.id}`} className="edit-link">
+                      Edit
+                    </Link>
+                  )}
+                </div>
                 {result.food_type.description && (
                   <p className="food-hero__desc">{result.food_type.description}</p>
                 )}
