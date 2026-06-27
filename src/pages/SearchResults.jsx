@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { searchFood } from '../api/client'
 import SearchBar from '../components/SearchBar'
+import NavBar from '../components/NavBar'
 import RestaurantCard from '../components/RestaurantCard'
 
 export default function SearchResults() {
@@ -27,8 +28,8 @@ export default function SearchResults() {
 
   return (
     <div className="page">
-      <header className="page-header">
-        <Link to="/" className="logo-link">খাওন</Link>
+      <header className="page-header page-header--stacked">
+        <NavBar compact />
         <SearchBar defaultValue={query} />
       </header>
 

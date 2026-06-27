@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { getRestaurant, getRestaurantReviews } from '../api/client'
+import NavBar from '../components/NavBar'
 import ReviewForm from '../components/ReviewForm'
 import StarRating from '../components/StarRating'
 
@@ -39,7 +40,7 @@ export default function RestaurantDetail() {
   return (
     <div className="page">
       <header className="page-header">
-        <Link to="/" className="logo-link">খাওন</Link>
+        <NavBar compact />
         {searchQuery && (
           <Link to={`/search?q=${encodeURIComponent(searchQuery)}`} className="back-link">
             ← Back to results

@@ -1,12 +1,24 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { submitReview } from '../api/client'
+import { useAuth } from '../context/AuthContext'
 
 export default function ReviewForm({ restaurantId, foodTypeId, onSubmitted }) {
-  const [reviewerName, setReviewerName] = useState('')
+  const { isAuthenticated } = useAuth()
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  if (!isAuthenticated) {
+    return (
+      <div className="review-form review-form--prompt">
+        <h3>Leave a review</h3>
+        <p className="muted">Sign in to share your experience.</p>
+        <Link to="/login" className="btn-primary">Sign in to review</Link>
+      </div>
+    )
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -17,11 +29,9 @@ export default function ReviewForm({ restaurantId, foodTypeId, onSubmitted }) {
       await submitReview({
         restaurant_id: restaurantId,
         food_type_id: foodTypeId,
-        reviewer_name: reviewerName.trim() || 'Anonymous',
         rating,
         comment: comment.trim() || null,
       })
-      setReviewerName('')
       setRating(5)
       setComment('')
       onSubmitted?.()
@@ -35,16 +45,6 @@ export default function ReviewForm({ restaurantId, foodTypeId, onSubmitted }) {
   return (
     <form className="review-form" onSubmit={handleSubmit}>
       <h3>Leave a review</h3>
-
-      <label>
-        Your name
-        <input
-          type="text"
-          value={reviewerName}
-          onChange={(e) => setReviewerName(e.target.value)}
-          placeholder="Anonymous"
-        />
-      </label>
 
       <label>
         Rating
