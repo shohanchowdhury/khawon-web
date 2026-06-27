@@ -65,6 +65,10 @@ export function listFoodTypes() {
   return request('/food-types/')
 }
 
+export function getTopFoodTypes(limit = 8) {
+  return request(`/food-types/top?limit=${limit}`)
+}
+
 export function createFoodType(data) {
   return request('/food-types/', {
     method: 'POST',

@@ -1,14 +1,17 @@
 :root {
-  --bg: #0a0a0a;
-  --bg-elevated: #111111;
-  --bg-card: #1a1a1a;
+  --bg: #fffbf7;
+  --bg-elevated: #ffffff;
+  --bg-card: #ffffff;
   --red: #dc2626;
   --red-hover: #ef4444;
   --yellow: #facc15;
   --yellow-muted: #eab308;
-  --text: #f5f5f5;
-  --text-muted: #a3a3a3;
-  --border: #2a2a2a;
+  --yellow-text: #a16207;
+  --text: #1c1917;
+  --text-muted: #78716c;
+  --border: #e7e5e4;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.08);
   --radius: 12px;
   --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
@@ -34,7 +37,7 @@ a {
 }
 
 a:hover {
-  color: var(--yellow);
+  color: var(--red);
 }
 
 button,
@@ -43,13 +46,27 @@ textarea {
   font: inherit;
 }
 
-/* Hero page */
+/* Home page */
+.home-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(220, 38, 38, 0.08) 0%, transparent 55%),
+    var(--bg);
+}
+
+.home-page .nav-bar {
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+
 .hero-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(220, 38, 38, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 0%, rgba(220, 38, 38, 0.08) 0%, transparent 55%),
     var(--bg);
 }
 
@@ -74,19 +91,23 @@ textarea {
 }
 
 .hero {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
-  padding: 2rem;
+  padding: 2.5rem 2rem 2rem;
   max-width: 720px;
   margin: 0 auto;
+  width: 100%;
+}
+
+.hero--compact {
+  padding-top: 2rem;
+  padding-bottom: 1.5rem;
 }
 
 .hero__eyebrow {
-  color: var(--yellow);
+  color: var(--red);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -124,11 +145,13 @@ textarea {
   background: var(--bg-elevated);
   color: var(--text);
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow);
 }
 
 .search-bar input:focus {
   border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
 }
 
 .search-bar button {
@@ -179,7 +202,7 @@ textarea {
 }
 
 .logo-link:hover {
-  color: var(--yellow);
+  color: var(--red-hover);
 }
 
 .back-link {
@@ -224,13 +247,15 @@ textarea {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  transition: border-color 0.2s, transform 0.15s;
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
   color: inherit;
 }
 
 .restaurant-card:hover {
   border-color: var(--red);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
   color: inherit;
 }
 
@@ -263,8 +288,8 @@ textarea {
 .badge {
   display: inline-block;
   padding: 0.2rem 0.6rem;
-  background: rgba(250, 204, 21, 0.15);
-  color: var(--yellow);
+  background: rgba(250, 204, 21, 0.25);
+  color: var(--yellow-text);
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 600;
@@ -311,7 +336,7 @@ textarea {
 
 .star-rating__value {
   margin-left: 0.35rem;
-  color: var(--yellow);
+  color: var(--yellow-text);
   font-weight: 700;
   font-size: 0.9rem;
 }
@@ -345,6 +370,7 @@ textarea {
   background: var(--bg-card);
   border-radius: var(--radius);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 }
 
 .detail-info p {
@@ -375,6 +401,7 @@ textarea {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 .review-item__header {
@@ -396,11 +423,12 @@ textarea {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 .review-form h3 {
   margin: 0 0 1.25rem;
-  color: var(--yellow);
+  color: var(--red);
 }
 
 .review-form label {
@@ -482,8 +510,8 @@ textarea {
 
 .error-box {
   padding: 1.25rem 1.5rem;
-  background: rgba(220, 38, 38, 0.1);
-  border: 1px solid var(--red);
+  background: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.3);
   border-radius: var(--radius);
   margin: 1rem 0;
 }
@@ -495,7 +523,7 @@ textarea {
 }
 
 .success {
-  color: var(--yellow);
+  color: var(--yellow-text);
   font-size: 0.9rem;
   margin: 0.5rem 0 0;
 }
@@ -529,7 +557,11 @@ textarea {
 
 .nav-link:hover,
 .nav-link--active {
-  color: var(--yellow);
+  color: var(--red);
+}
+
+.logo-link:hover {
+  color: var(--red-hover);
 }
 
 .nav-user {
@@ -584,6 +616,7 @@ textarea {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 .auth-form label,
@@ -693,4 +726,83 @@ textarea {
 
 .review-form--prompt .btn-primary {
   margin-top: 0.5rem;
+}
+
+/* Top foods section */
+.top-foods {
+  flex: 1;
+  padding: 0 2rem 3rem;
+}
+
+.top-foods__inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.top-foods__heading {
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  margin: 0 0 0.35rem;
+  color: var(--text);
+}
+
+.top-foods__subheading {
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+}
+
+.top-foods__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.food-card {
+  display: block;
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  color: inherit;
+}
+
+.food-card:hover {
+  border-color: var(--red);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  color: inherit;
+}
+
+.food-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.food-card__header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.food-card__desc {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.food-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
 }
