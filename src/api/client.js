@@ -69,6 +69,13 @@ export function getTopFoodTypes(limit = 8) {
   return request(`/food-types/top?limit=${limit}`)
 }
 
+export function getFoodCatalogue(query = '') {
+  const params = query.trim()
+    ? `?q=${encodeURIComponent(query.trim())}`
+    : ''
+  return request(`/food-types/catalogue${params}`)
+}
+
 export function createFoodType(data) {
   return request('/food-types/', {
     method: 'POST',

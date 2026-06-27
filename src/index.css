@@ -806,3 +806,67 @@ textarea {
   margin-top: 0.75rem;
   flex-wrap: wrap;
 }
+
+.top-foods__footer {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.catalogue-link {
+  font-weight: 600;
+  color: var(--red);
+}
+
+.catalogue-link:hover {
+  color: var(--red-hover);
+}
+
+/* Catalogue page */
+.catalogue-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.catalogue-header h1 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.catalogue-search {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.catalogue-search input {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  margin-top: 0.35rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  outline: none;
+  box-shadow: var(--shadow);
+}
+
+.catalogue-search input:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+.catalogue-count {
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+}
+
+.catalogue-grid {
+  margin-top: 0;
+}

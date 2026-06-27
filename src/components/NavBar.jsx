@@ -10,6 +10,12 @@ export default function NavBar({ compact = false }) {
       <Link to="/" className="logo-link">খাওন</Link>
 
       <nav className="nav-bar__links">
+        <Link
+          to="/catalogue"
+          className={location.pathname === '/catalogue' ? 'nav-link nav-link--active' : 'nav-link'}
+        >
+          Catalogue
+        </Link>
         {isAuthenticated && (
           <Link
             to="/contribute"

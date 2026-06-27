@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { getTopFoodTypes } from '../api/client'
 import NavBar from '../components/NavBar'
 import SearchBar from '../components/SearchBar'
@@ -50,6 +51,10 @@ export default function Home() {
               ))}
             </div>
           )}
+
+          <p className="top-foods__footer">
+            <Link to="/catalogue" className="catalogue-link">Browse full food catalogue →</Link>
+          </p>
         </div>
       </section>
     </div>
