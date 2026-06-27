@@ -680,6 +680,17 @@ textarea {
   margin: 0 0 0.5rem;
 }
 
+.contribute-preview {
+  display: block;
+  max-width: 240px;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin-top: 0.5rem;
+}
+
 .checkbox-group {
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -758,13 +769,14 @@ textarea {
 
 .food-card {
   display: block;
-  padding: 1.25rem;
+  padding: 0;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
   color: inherit;
+  overflow: hidden;
 }
 
 .food-card:hover {
@@ -772,6 +784,31 @@ textarea {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
   color: inherit;
+}
+
+.food-card__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.food-card__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(135deg, var(--bg) 0%, #fde8e4 100%);
+  color: var(--red);
+  font-size: 2.5rem;
+  font-weight: 700;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.food-card__body {
+  padding: 1rem 1.25rem 1.25rem;
 }
 
 .food-card__header {
@@ -803,7 +840,7 @@ textarea {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
   flex-wrap: wrap;
 }
 

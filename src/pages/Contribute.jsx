@@ -10,6 +10,8 @@ export default function Contribute() {
 
   const [foodName, setFoodName] = useState('')
   const [foodDescription, setFoodDescription] = useState('')
+  const [foodImage, setFoodImage] = useState(null)
+  const [foodImagePreview, setFoodImagePreview] = useState(null)
   const [foodMessage, setFoodMessage] = useState('')
   const [foodError, setFoodError] = useState('')
   const [foodSubmitting, setFoodSubmitting] = useState(false)
@@ -37,6 +39,15 @@ export default function Contribute() {
     )
   }
 
+  function handleFoodImageChange(e) {
+    const file = e.target.files?.[0] || null
+    setFoodImage(file)
+    setFoodImagePreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev)
+      return file ? URL.createObjectURL(file) : null
+    })
+  }
+
   async function handleFoodSubmit(e) {
     e.preventDefault()
     setFoodSubmitting(true)
@@ -46,10 +57,16 @@ export default function Contribute() {
       const created = await createFoodType({
         name: foodName.trim(),
         description: foodDescription.trim() || null,
+        image: foodImage,
       })
       setFoodTypes((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)))
       setFoodName('')
       setFoodDescription('')
+      setFoodImage(null)
+      setFoodImagePreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev)
+        return null
+      })
       setFoodMessage(`Added "${created.name}" successfully.`)
     } catch (err) {
       setFoodError(err.message)
@@ -115,6 +132,21 @@ export default function Contribute() {
                 placeholder="Optional short description"
               />
             </label>
+            <label>
+              Photo
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/*"
+                onChange={handleFoodImageChange}
+              />
+            </label>
+            {foodImagePreview && (
+              <img
+                src={foodImagePreview}
+                alt="Preview"
+                className="contribute-preview"
+              />
+            )}
             {foodError && <p className="error">{foodError}</p>}
             {foodMessage && <p className="success">{foodMessage}</p>}
             <button type="submit" disabled={foodSubmitting}>

@@ -22,7 +22,10 @@ function formatError(detail) {
 
 async function request(path, options = {}) {
   const headers = { ...options.headers }
-  if (!(options.body instanceof URLSearchParams)) {
+  if (
+    !(options.body instanceof URLSearchParams) &&
+    !(options.body instanceof FormData)
+  ) {
     headers['Content-Type'] = headers['Content-Type'] || 'application/json'
   }
 
@@ -76,10 +79,18 @@ export function getFoodCatalogue(query = '') {
   return request(`/food-types/catalogue${params}`)
 }
 
-export function createFoodType(data) {
+export function createFoodType({ name, description, image }) {
+  const body = new FormData()
+  body.append('name', name)
+  if (description) {
+    body.append('description', description)
+  }
+  if (image) {
+    body.append('image', image)
+  }
   return request('/food-types/', {
     method: 'POST',
-    body: JSON.stringify(data),
+    body,
   })
 }
 
