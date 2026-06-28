@@ -2,6 +2,12 @@ export const HOME_CAROUSEL_LIMIT = 5
 
 export const POSTER_FOODS = [
   {
+    name: 'Ramen',
+    fallbackImage: '/featured/ramen.webp',
+    accent: '#ea580c',
+    slug: 'ramen',
+  },
+  {
     name: 'Biriyani',
     fallbackImage: '/featured/biriyani.webp',
     accent: '#dc2626',
@@ -12,12 +18,6 @@ export const POSTER_FOODS = [
     fallbackImage: '/featured/fuchka.webp',
     accent: '#facc15',
     slug: 'fuchka',
-  },
-  {
-    name: 'Ramen',
-    fallbackImage: '/featured/ramen.webp',
-    accent: '#ea580c',
-    slug: 'ramen',
   },
 ]
 
