@@ -21,7 +21,7 @@ function getClosestCenterIndex(track) {
   return closestIndex
 }
 
-export default function TopFoodCarousel({ foods, variant = 'default' }) {
+export default function TopFoodCarousel({ foods, variant = 'default', showScrollbar = false }) {
   const trackRef = useRef(null)
   const scrollEndTimerRef = useRef(null)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -39,7 +39,14 @@ export default function TopFoodCarousel({ foods, variant = 'default' }) {
 
     const left = card.offsetLeft - (track.clientWidth - card.clientWidth) / 2
     track.scrollTo({ left, behavior })
+    setActiveIndex(index)
   }, [])
+
+  const scrollBy = useCallback((direction) => {
+    const next = activeIndex + direction
+    if (next < 0 || next >= foods.length) return
+    scrollToIndex(next)
+  }, [activeIndex, foods.length, scrollToIndex])
 
   const handleScrollEnd = useCallback(() => {
     const track = trackRef.current
@@ -130,7 +137,34 @@ export default function TopFoodCarousel({ foods, variant = 'default' }) {
       )}
 
       <div className="food-carousel__viewport">
-        <div ref={trackRef} className="food-carousel__track" role="list">
+        {isFocused && foods.length > 1 && (
+          <>
+            <button
+              type="button"
+              className="food-carousel__nav food-carousel__nav--prev"
+              onClick={() => scrollBy(-1)}
+              disabled={activeIndex === 0}
+              aria-label="Previous food"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              className="food-carousel__nav food-carousel__nav--next"
+              onClick={() => scrollBy(1)}
+              disabled={activeIndex === foods.length - 1}
+              aria-label="Next food"
+            >
+              ›
+            </button>
+          </>
+        )}
+
+        <div
+          ref={trackRef}
+          className={`food-carousel__track${showScrollbar ? ' food-carousel__track--scrollbar-visible' : ''}`}
+          role="list"
+        >
           {foods.map((food, index) => (
             <CarouselFoodCard
               key={food.id ?? food.name}

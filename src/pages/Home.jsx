@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
 import { getTopFoodTypes, listFoodTypes } from '../api/client'
 import { buildCarouselFoods, HOME_CAROUSEL_LIMIT } from '../config/featuredFoods'
+import FoodStage from '../components/FoodStage'
+import HomeAccentBackground from '../components/HomeAccentBackground'
 import NavBar from '../components/NavBar'
-import TopFoodCarousel from '../components/TopFoodCarousel'
 
 export default function Home() {
   const [carouselFoods, setCarouselFoods] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [accent, setAccent] = useState('#ea580c')
 
   useEffect(() => {
     Promise.all([listFoodTypes(), getTopFoodTypes(12)])
@@ -20,6 +22,7 @@ export default function Home() {
 
   return (
     <div className="home-page home-page--feed">
+      <HomeAccentBackground accent={accent} />
       <NavBar showSearch />
 
       {loading && <p className="loading home-page__loading">Loading...</p>}
@@ -30,7 +33,7 @@ export default function Home() {
       )}
 
       {!loading && !error && carouselFoods.length > 0 && (
-        <TopFoodCarousel foods={carouselFoods} variant="focused" />
+        <FoodStage foods={carouselFoods} onAccentChange={setAccent} />
       )}
 
       {!loading && !error && carouselFoods.length === 0 && (
