@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { getTopFoodTypes, listFoodTypes } from '../api/client'
 import { buildCarouselFoods, HOME_CAROUSEL_LIMIT } from '../config/featuredFoods'
 import FoodStage from '../components/FoodStage'
+import HomeAccentBackground from '../components/HomeAccentBackground'
 import NavBar from '../components/NavBar'
 
 export default function Home() {
@@ -20,10 +21,8 @@ export default function Home() {
   }, [])
 
   return (
-    <div
-      className="home-page home-page--feed"
-      style={{ '--home-accent': accent }}
-    >
+    <div className="home-page home-page--feed">
+      <HomeAccentBackground accent={accent} />
       <NavBar showSearch />
 
       {loading && <p className="loading home-page__loading">Loading...</p>}

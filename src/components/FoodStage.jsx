@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { getFoodDisplayImage } from '../config/featuredFoods'
 import FoodImage from './FoodImage'
-import StarRating from './StarRating'
 
 const SWIPE_THRESHOLD = 50
 
@@ -117,19 +116,19 @@ export default function FoodStage({ foods, onAccentChange }) {
   }
 
   const textVariants = {
-    enter: { opacity: 0, y: reduceMotion ? 0 : 12 },
-    center: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: reduceMotion ? 0 : -8 },
+    enter: { opacity: 0, x: reduceMotion ? 0 : -20, y: reduceMotion ? 0 : 8 },
+    center: { opacity: 1, x: 0, y: 0 },
+    exit: { opacity: 0, x: reduceMotion ? 0 : 16, y: reduceMotion ? 0 : -8 },
   }
 
   const activeImageUrl = getFoodDisplayImage(active)
-  const hasStats =
-    active.restaurant_count > 0
-    || active.review_count > 0
-    || active.average_rating != null
 
   return (
-    <section className="food-stage" aria-label="Featured foods">
+    <section
+      className="food-stage"
+      style={{ '--home-accent': getAccent(active) }}
+      aria-label="Featured foods"
+    >
       <div
         className="food-stage__viewport"
         onTouchStart={onTouchStart}
@@ -209,66 +208,43 @@ export default function FoodStage({ foods, onAccentChange }) {
             ›
           </button>
         )}
-      </div>
 
-      <div className="food-stage__meta" aria-live="polite">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={`meta-${active.id ?? active.name}`}
-            className="food-stage__meta-inner"
-            custom={direction}
-            variants={textVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              ...transition,
-              delay: reduceMotion ? 0 : 0.05,
-            }}
-          >
-            <h2 className="food-stage__title">{active.name}</h2>
+        <div className="food-stage__footer" aria-live="polite">
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={`meta-${active.id ?? active.name}`}
+              className="food-stage__footer-inner"
+              custom={direction}
+              variants={textVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                ...transition,
+                delay: reduceMotion ? 0 : 0.05,
+              }}
+            >
+              <h2 className="food-stage__title">{active.name}</h2>
 
-            {hasStats && (
               <motion.div
-                className="food-stage__stats"
-                initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
-                animate={{ opacity: 1, y: 0 }}
+                className="food-stage__cta-wrap"
+                initial={{ opacity: 0, x: reduceMotion ? 0 : 16, y: reduceMotion ? 0 : 8 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
                 transition={{
                   ...transition,
                   delay: reduceMotion ? 0 : 0.08,
                 }}
               >
-                {active.restaurant_count > 0 && (
-                  <span className="food-stage__spots">
-                    {active.restaurant_count} spot{active.restaurant_count !== 1 ? 's' : ''}
-                  </span>
-                )}
-                <StarRating rating={active.average_rating} size="sm" />
-                {active.review_count > 0 && (
-                  <span className="food-stage__reviews muted">
-                    {active.review_count} review{active.review_count !== 1 ? 's' : ''}
-                  </span>
-                )}
+                <Link
+                  to={`/search?${searchParams.toString()}`}
+                  className="food-stage__cta nav-btn nav-btn--primary"
+                >
+                  Find {active.name} near you
+                </Link>
               </motion.div>
-            )}
-
-            <motion.div
-              initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                ...transition,
-                delay: reduceMotion ? 0 : 0.1,
-              }}
-            >
-              <Link
-                to={`/search?${searchParams.toString()}`}
-                className="food-stage__cta nav-btn nav-btn--primary"
-              >
-                Find {active.name} near you
-              </Link>
             </motion.div>
-          </motion.div>
-        </AnimatePresence>
+          </AnimatePresence>
+        </div>
 
         {count > 1 && (
           <div className="food-stage__dots" aria-hidden="true">
