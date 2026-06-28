@@ -289,8 +289,8 @@ textarea {
   height: 100%;
   object-fit: contain;
   filter:
-    drop-shadow(0 0 10px color-mix(in srgb, var(--home-accent) 35%, transparent))
-    drop-shadow(0 0 24px color-mix(in srgb, var(--home-accent) 18%, transparent));
+    drop-shadow(0 0 10px color-mix(in srgb, var(--home-accent) 25%, transparent))
+    drop-shadow(0 0 24px color-mix(in srgb, var(--home-accent) 13%, transparent));
 }
 
 .food-stage__center {
@@ -318,9 +318,9 @@ textarea {
   height: auto;
   object-fit: contain;
   filter:
-    drop-shadow(0 0 14px color-mix(in srgb, var(--home-accent) 50%, transparent))
-    drop-shadow(0 0 32px color-mix(in srgb, var(--home-accent) 30%, transparent))
-    drop-shadow(0 0 56px color-mix(in srgb, var(--home-accent) 18%, transparent));
+    drop-shadow(0 0 14px color-mix(in srgb, var(--home-accent) 35%, transparent))
+    drop-shadow(0 0 32px color-mix(in srgb, var(--home-accent) 21%, transparent))
+    drop-shadow(0 0 56px color-mix(in srgb, var(--home-accent) 13%, transparent));
 }
 
 .food-stage__image.food-card__placeholder {
