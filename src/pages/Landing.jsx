@@ -10,6 +10,7 @@ import { LANDING_PATTERN } from '../config/landingBackground'
 import { useAuth } from '../context/AuthContext'
 import FoodImage from '../components/FoodImage'
 import NavBar from '../components/NavBar'
+import { useLandingPatternDrift } from '../hooks/useLandingPatternDrift'
 
 const SHOWCASE_LIMIT = 3
 
@@ -20,6 +21,7 @@ function getAccent(food) {
 export default function Landing() {
   const { isAuthenticated } = useAuth()
   const [showcaseFoods, setShowcaseFoods] = useState([])
+  const patternRef = useLandingPatternDrift()
 
   useEffect(() => {
     Promise.all([listFoodTypes(), getTopFoodTypes(12)])
@@ -37,6 +39,7 @@ export default function Landing() {
     <div className="landing-page">
       <div className="landing-page__accent" aria-hidden="true" />
       <div
+        ref={patternRef}
         className="landing-page__pattern"
         aria-hidden="true"
         style={{
