@@ -34,17 +34,16 @@ export default function RestaurantCatalogue() {
       <main className="page-content">
         <div className="catalogue-header">
           <div>
-            <h1>Restaurant catalogue</h1>
+            <h1>Restaurants</h1>
             <p className="muted">
               Browse every restaurant on Khawon — tap one for details and reviews
             </p>
           </div>
-          <Link to="/" className="back-link">← Back to home</Link>
         </div>
 
         <p className="catalogue-crosslink muted">
           Looking for foods?{' '}
-          <Link to="/catalogue">Browse food catalogue →</Link>
+          <Link to="/foods">Browse foods →</Link>
         </p>
 
         <label className="catalogue-search">

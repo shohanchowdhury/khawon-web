@@ -1,5 +1,7 @@
 export const HOME_CAROUSEL_LIMIT = 5
 
+export const HOME_CAROUSEL_EXCLUDE = ['Beef Tehari']
+
 export const POSTER_FOODS = [
   {
     name: 'Ramen',
@@ -18,6 +20,12 @@ export const POSTER_FOODS = [
     fallbackImage: '/featured/fuchka.webp',
     accent: '#facc15',
     slug: 'fuchka',
+  },
+  {
+    name: 'Pizza',
+    fallbackImage: '/featured/pizza.webp',
+    accent: '#c2410c',
+    slug: 'pizza',
   },
 ]
 
@@ -46,8 +54,13 @@ export function resolvePosterFoods(allFoods, enrichedFoods = []) {
 export function buildCarouselFoods(allFoods, topList) {
   const posters = resolvePosterFoods(allFoods, topList)
   const posterNames = new Set(posters.map((food) => food.name.toLowerCase()))
+  const excludeNames = new Set(
+    HOME_CAROUSEL_EXCLUDE.map((name) => name.toLowerCase()),
+  )
   const rest = (topList || []).filter(
-    (food) => !posterNames.has(food.name.toLowerCase()),
+    (food) =>
+      !posterNames.has(food.name.toLowerCase()) &&
+      !excludeNames.has(food.name.toLowerCase()),
   )
   return [...posters, ...rest]
 }

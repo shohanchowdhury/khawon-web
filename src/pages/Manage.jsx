@@ -4,12 +4,14 @@ import {
   getFoodCatalogue,
   getPlaceDetails,
   getRestaurantCatalogue,
+  listFoodTypes,
   searchFoodImages,
   searchPlaces,
   updateFoodTypePhoto,
   updateRestaurantPhoto,
 } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import ContributeForms from '../components/ContributeForms'
 import FoodImage from '../components/FoodImage'
 import FoodPhotoPicker from '../components/FoodPhotoPicker'
 import NavBar from '../components/NavBar'
@@ -230,16 +232,18 @@ export default function Manage() {
   const { isAuthenticated, loading } = useAuth()
   const [foods, setFoods] = useState([])
   const [restaurants, setRestaurants] = useState([])
+  const [foodTypes, setFoodTypes] = useState([])
   const [pageLoading, setPageLoading] = useState(true)
   const [error, setError] = useState('')
   const [foodPhotoEditorId, setFoodPhotoEditorId] = useState(null)
   const [restaurantPhotoEditorId, setRestaurantPhotoEditorId] = useState(null)
 
   useEffect(() => {
-    Promise.all([getFoodCatalogue(), getRestaurantCatalogue()])
-      .then(([foodList, restaurantList]) => {
+    Promise.all([getFoodCatalogue(), getRestaurantCatalogue(), listFoodTypes()])
+      .then(([foodList, restaurantList, typeList]) => {
         setFoods(foodList)
         setRestaurants(restaurantList)
+        setFoodTypes(typeList)
       })
       .catch((err) => setError(err.message))
       .finally(() => setPageLoading(false))
@@ -257,6 +261,15 @@ export default function Manage() {
     )
   }
 
+  function handleFoodCreated(created) {
+    setFoods((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)))
+    setFoodTypes((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)))
+  }
+
+  function handleRestaurantCreated(created) {
+    setRestaurants((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)))
+  }
+
   if (loading) return null
   if (!isAuthenticated) return <Navigate to="/login" replace />
 
@@ -269,11 +282,19 @@ export default function Manage() {
       <main className="page-content">
         <div className="catalogue-header">
           <div>
-            <h1>Manage listings</h1>
-            <p className="muted">Edit details or choose photos for foods and restaurants.</p>
+            <h1>Manage</h1>
+            <p className="muted">Add new listings or edit photos and details for existing ones.</p>
           </div>
-          <Link to="/contribute" className="back-link">+ Add new</Link>
         </div>
+
+        <section className="manage-section">
+          <h2>Add new</h2>
+          <ContributeForms
+            foodTypes={foodTypes}
+            onFoodCreated={handleFoodCreated}
+            onRestaurantCreated={handleRestaurantCreated}
+          />
+        </section>
 
         {pageLoading && <p className="loading">Loading listings...</p>}
         {error && <div className="error-box"><p>{error}</p></div>}

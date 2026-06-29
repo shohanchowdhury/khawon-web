@@ -20,8 +20,8 @@ export default function NavBar({ compact = false, showSearch = false }) {
 
       <nav className="nav-bar__links">
         <Link
-          to="/catalogue"
-          className={location.pathname === '/catalogue' ? 'nav-link nav-link--active' : 'nav-link'}
+          to="/foods"
+          className={location.pathname === '/foods' ? 'nav-link nav-link--active' : 'nav-link'}
         >
           Foods
         </Link>
@@ -32,20 +32,12 @@ export default function NavBar({ compact = false, showSearch = false }) {
           Restaurants
         </Link>
         {isAuthenticated && (
-          <>
-            <Link
-              to="/contribute"
-              className={location.pathname === '/contribute' ? 'nav-link nav-link--active' : 'nav-link'}
-            >
-              Add listing
-            </Link>
-            <Link
-              to="/manage"
-              className={location.pathname.startsWith('/manage') ? 'nav-link nav-link--active' : 'nav-link'}
-            >
-              Manage
-            </Link>
-          </>
+          <Link
+            to="/manage"
+            className={location.pathname.startsWith('/manage') ? 'nav-link nav-link--active' : 'nav-link'}
+          >
+            Manage
+          </Link>
         )}
         {isAuthenticated ? (
           <>

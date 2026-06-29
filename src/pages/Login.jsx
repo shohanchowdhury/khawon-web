@@ -3,6 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import NavBar from '../components/NavBar'
 
+const DEV_CREDENTIALS = {
+  username: 'shohanc',
+  password: 'shohan123',
+}
+
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -11,18 +16,26 @@ export default function Login() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  async function handleSubmit(e) {
-    e.preventDefault()
+  async function signIn(credentialsUsername, credentialsPassword) {
     setSubmitting(true)
     setError('')
     try {
-      await login(username, password)
+      await login(credentialsUsername, credentialsPassword)
       navigate('/')
     } catch (err) {
       setError(err.message)
     } finally {
       setSubmitting(false)
     }
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    await signIn(username, password)
+  }
+
+  async function handleDevSignIn() {
+    await signIn(DEV_CREDENTIALS.username, DEV_CREDENTIALS.password)
   }
 
   return (
@@ -54,9 +67,21 @@ export default function Login() {
             />
           </label>
           {error && <p className="error">{error}</p>}
-          <button type="submit" disabled={submitting}>
-            {submitting ? 'Signing in...' : 'Sign in'}
-          </button>
+          <div className="auth-form__actions">
+            <button type="submit" disabled={submitting}>
+              {submitting ? 'Signing in...' : 'Sign in'}
+            </button>
+            {import.meta.env.DEV && (
+              <button
+                type="button"
+                className="auth-form__dev-signin"
+                onClick={handleDevSignIn}
+                disabled={submitting}
+              >
+                Dev
+              </button>
+            )}
+          </div>
         </form>
 
         <p className="auth-switch">
