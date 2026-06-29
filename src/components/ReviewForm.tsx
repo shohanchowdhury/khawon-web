@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
 import { submitReview } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
+import { useAuthModal } from '@/context/AuthModalContext'
 
 interface ReviewFormProps {
   restaurantId: number
@@ -11,6 +11,7 @@ interface ReviewFormProps {
 
 export default function ReviewForm({ restaurantId, foodTypeId, onSubmitted }: ReviewFormProps) {
   const { isAuthenticated } = useAuth()
+  const { openAuthModal } = useAuthModal()
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -21,7 +22,13 @@ export default function ReviewForm({ restaurantId, foodTypeId, onSubmitted }: Re
       <div className="review-form review-form--prompt">
         <h3>Leave a review</h3>
         <p className="muted">Sign in to share your experience.</p>
-        <Link to="/login" className="btn-primary">Sign in to review</Link>
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={() => openAuthModal('login')}
+        >
+          Sign in to review
+        </button>
       </div>
     )
   }

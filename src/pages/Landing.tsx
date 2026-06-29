@@ -8,6 +8,7 @@ import {
 } from '@/config/featuredFoods'
 import { LANDING_PATTERN } from '@/config/landingBackground'
 import { useAuth } from '@/context/AuthContext'
+import { useAuthModal } from '@/context/AuthModalContext'
 import type { CarouselFood } from '@/types/domain/featuredFood'
 import FoodImage from '@/components/FoodImage'
 import NavBar from '@/components/NavBar'
@@ -21,6 +22,7 @@ function getAccent(food: CarouselFood): string {
 
 export default function Landing() {
   const { isAuthenticated } = useAuth()
+  const { openAuthModal } = useAuthModal()
   const [showcaseFoods, setShowcaseFoods] = useState<CarouselFood[]>([])
   const patternRef = useLandingPatternDrift()
 
@@ -78,7 +80,14 @@ export default function Landing() {
 
           {!isAuthenticated && (
             <p className="landing-hero__auth muted">
-              <Link to="/login">Sign in</Link> to add listings and post reviews
+              <button
+                type="button"
+                className="landing-hero__auth-btn"
+                onClick={() => openAuthModal('login')}
+              >
+                Sign in
+              </button>{' '}
+              to add listings and post reviews
             </p>
           )}
         </div>

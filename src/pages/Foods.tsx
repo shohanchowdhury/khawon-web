@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { getFoodCatalogue, getTopFoodTypes, listFoodTypes } from '@/api/client'
 import { buildCarouselFoods, HOME_CAROUSEL_LIMIT } from '@/config/featuredFoods'
 import type { FoodTypePopularOut } from '@/types/api'
@@ -13,7 +13,6 @@ import TopFoodCard from '@/components/TopFoodCard'
 export default function Foods() {
   const location = useLocation()
   const navigate = useNavigate()
-  const reduceMotion = useReducedMotion()
   const [stageIntro] = useState(() => location.state?.foodStageIntro === true)
 
   const [carouselFoods, setCarouselFoods] = useState<CarouselFood[]>([])
@@ -58,9 +57,10 @@ export default function Foods() {
 
   return (
     <div className="foods-page">
+      <NavBar showSearch />
+
       <section className="home-page home-page--feed foods-page__hero">
         <HomeAccentBackground accent={accent} />
-        <NavBar showSearch />
 
         {stageLoading && <p className="loading home-page__loading">Loading...</p>}
         {stageError && (
@@ -80,11 +80,11 @@ export default function Foods() {
 
       <motion.section
         className="foods-page__catalogue page-content"
-        initial={stageIntro && !reduceMotion ? { opacity: 0 } : false}
+        initial={stageIntro ? { opacity: 0 } : false}
         animate={{ opacity: 1 }}
         transition={{
-          duration: reduceMotion ? 0 : 0.35,
-          delay: stageIntro && !reduceMotion ? 0.15 : 0,
+          duration: 0.35,
+          delay: stageIntro ? 0.15 : 0,
         }}
       >
         <div className="catalogue-header">

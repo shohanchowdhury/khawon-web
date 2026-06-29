@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { useAuthModal } from '@/context/AuthModalContext'
 import SearchBar from '@/components/SearchBar'
 import ThemeToggle from '@/components/ThemeToggle'
 
@@ -10,6 +11,7 @@ interface NavBarProps {
 
 export default function NavBar({ compact = false, showSearch = false }: NavBarProps) {
   const { user, logout, isAuthenticated } = useAuth()
+  const { openAuthModal } = useAuthModal()
   const location = useLocation()
 
   return (
@@ -52,10 +54,13 @@ export default function NavBar({ compact = false, showSearch = false }: NavBarPr
             <button type="button" className="nav-btn" onClick={logout}>Sign out</button>
           </>
         ) : (
-          <>
-            <Link to="/login" className="nav-link">Sign in</Link>
-            <Link to="/register" className="nav-btn nav-btn--primary">Register</Link>
-          </>
+          <button
+            type="button"
+            className="nav-btn nav-btn--primary"
+            onClick={() => openAuthModal('login')}
+          >
+            Sign in
+          </button>
         )}
       </nav>
     </header>

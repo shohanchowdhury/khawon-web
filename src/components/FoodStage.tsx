@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { getFoodDisplayImage } from '@/config/featuredFoods'
 import type { CarouselFood } from '@/types/domain/featuredFood'
 import FoodImage from '@/components/FoodImage'
 
 const SWIPE_THRESHOLD = 50
+const SLIDE_OFFSET = 48
+const STAGE_TRANSITION = { type: 'spring' as const, stiffness: 320, damping: 32 }
 
 interface NavArrowProps {
   direction: 'prev' | 'next'
@@ -34,29 +36,25 @@ interface StagePeekProps {
   food: CarouselFood | null
   side: 'prev' | 'next'
   direction: number
-  reduceMotion: boolean | null
   intro: boolean
 }
 
-function StagePeek({ food, side, direction, reduceMotion, intro }: StagePeekProps) {
+function StagePeek({ food, side, direction, intro }: StagePeekProps) {
   if (!food) return <div className={`food-stage__peek food-stage__peek--${side}`} aria-hidden="true" />
 
   const imageUrl = getFoodDisplayImage(food)
   const slide = direction * (side === 'prev' ? -20 : 20)
-  const showIntro = intro && !reduceMotion
 
   return (
     <motion.div
       className={`food-stage__peek food-stage__peek--${side}`}
       aria-hidden="true"
-      initial={showIntro ? { opacity: 0, x: 0 } : false}
-      animate={{ opacity: 0.85, x: reduceMotion ? 0 : slide }}
+      initial={intro ? { opacity: 0, x: 0 } : false}
+      animate={{ opacity: 0.85, x: slide }}
       transition={
-        reduceMotion
-          ? { duration: 0 }
-          : showIntro
-            ? { duration: 0.35, ease: 'easeOut', delay: 0.18 }
-            : { duration: 0.35, ease: 'easeOut' }
+        intro
+          ? { duration: 0.35, ease: 'easeOut', delay: 0.18 }
+          : { duration: 0.35, ease: 'easeOut' }
       }
     >
       <div className="food-stage__peek-inner">
@@ -86,7 +84,6 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
   const [direction, setDirection] = useState(0)
   const touchStartX = useRef<number | null>(null)
   const introPlayedRef = useRef(false)
-  const reduceMotion = useReducedMotion()
 
   const count = foods.length
   const active = foods[activeIndex]
@@ -146,12 +143,7 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
   if (!active) return null
 
   const searchParams = new URLSearchParams({ q: active.name })
-  const slideOffset = reduceMotion ? 0 : 48
-  const transition = reduceMotion
-    ? { duration: 0 }
-    : { type: 'spring' as const, stiffness: 320, damping: 32 }
-
-  const showIntro = intro && !introPlayedRef.current && !reduceMotion
+  const showIntro = intro && !introPlayedRef.current
 
   const imageVariants = showIntro
     ? {
@@ -159,26 +151,26 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
         center: { opacity: 1, scale: 1, x: 0 },
         exit: (d: number) => ({
           opacity: 0,
-          x: d * -slideOffset,
-          scale: reduceMotion ? 1 : 0.96,
+          x: d * -SLIDE_OFFSET,
+          scale: 0.96,
         }),
       }
     : {
-        enter: (d: number) => ({ opacity: 0, x: d * slideOffset, scale: reduceMotion ? 1 : 0.96 }),
+        enter: (d: number) => ({ opacity: 0, x: d * SLIDE_OFFSET, scale: 0.96 }),
         center: { opacity: 1, x: 0, scale: 1 },
-        exit: (d: number) => ({ opacity: 0, x: d * -slideOffset, scale: reduceMotion ? 1 : 0.96 }),
+        exit: (d: number) => ({ opacity: 0, x: d * -SLIDE_OFFSET, scale: 0.96 }),
       }
 
   const textVariants = showIntro
     ? {
         enter: { opacity: 0, x: 0, y: 12 },
         center: { opacity: 1, x: 0, y: 0 },
-        exit: { opacity: 0, x: reduceMotion ? 0 : 16, y: reduceMotion ? 0 : -8 },
+        exit: { opacity: 0, x: 16, y: -8 },
       }
     : {
-        enter: { opacity: 0, x: reduceMotion ? 0 : -20, y: reduceMotion ? 0 : 8 },
+        enter: { opacity: 0, x: -20, y: 8 },
         center: { opacity: 1, x: 0, y: 0 },
-        exit: { opacity: 0, x: reduceMotion ? 0 : 16, y: reduceMotion ? 0 : -8 },
+        exit: { opacity: 0, x: 16, y: -8 },
       }
 
   const handleIntroComplete = () => {
@@ -217,7 +209,6 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
             food={prevFood}
             side="prev"
             direction={direction}
-            reduceMotion={reduceMotion}
             intro={showIntro}
           />
 
@@ -233,7 +224,7 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={transition}
+                transition={STAGE_TRANSITION}
                 onAnimationComplete={handleIntroComplete}
               >
                 {activeImageUrl ? (
@@ -261,7 +252,6 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
             food={nextFood}
             side="next"
             direction={direction}
-            reduceMotion={reduceMotion}
             intro={showIntro}
           />
         </div>
@@ -289,19 +279,19 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
               animate="center"
               exit="exit"
               transition={{
-                ...transition,
-                delay: reduceMotion ? 0 : showIntro ? 0.12 : 0.05,
+                ...STAGE_TRANSITION,
+                delay: showIntro ? 0.12 : 0.05,
               }}
             >
               <h2 className="food-stage__title">{active.name}</h2>
 
               <motion.div
                 className="food-stage__cta-wrap"
-                initial={{ opacity: 0, x: reduceMotion ? 0 : 16, y: reduceMotion ? 0 : 8 }}
+                initial={{ opacity: 0, x: 16, y: 8 }}
                 animate={{ opacity: 1, x: 0, y: 0 }}
                 transition={{
-                  ...transition,
-                  delay: reduceMotion ? 0 : showIntro ? 0.2 : 0.08,
+                  ...STAGE_TRANSITION,
+                  delay: showIntro ? 0.2 : 0.08,
                 }}
               >
                 <Link
