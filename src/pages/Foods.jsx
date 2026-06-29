@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { motion, useReducedMotion } from 'framer-motion'
 import { getFoodCatalogue, getTopFoodTypes, listFoodTypes } from '../api/client'
 import { buildCarouselFoods, HOME_CAROUSEL_LIMIT } from '../config/featuredFoods'
 import FoodStage from '../components/FoodStage'
@@ -8,6 +9,11 @@ import NavBar from '../components/NavBar'
 import TopFoodCard from '../components/TopFoodCard'
 
 export default function Foods() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const reduceMotion = useReducedMotion()
+  const [stageIntro] = useState(() => location.state?.foodStageIntro === true)
+
   const [carouselFoods, setCarouselFoods] = useState([])
   const [stageLoading, setStageLoading] = useState(true)
   const [stageError, setStageError] = useState('')
@@ -18,6 +24,12 @@ export default function Foods() {
   const [foods, setFoods] = useState([])
   const [catalogueLoading, setCatalogueLoading] = useState(true)
   const [catalogueError, setCatalogueError] = useState('')
+
+  useEffect(() => {
+    if (location.state?.foodStageIntro) {
+      navigate('/foods', { replace: true, state: {} })
+    }
+  }, [location.state?.foodStageIntro, navigate])
 
   useEffect(() => {
     Promise.all([listFoodTypes(), getTopFoodTypes(12)])
@@ -56,7 +68,7 @@ export default function Foods() {
         )}
 
         {!stageLoading && !stageError && carouselFoods.length > 0 && (
-          <FoodStage foods={carouselFoods} onAccentChange={setAccent} />
+          <FoodStage foods={carouselFoods} onAccentChange={setAccent} intro={stageIntro} />
         )}
 
         {!stageLoading && !stageError && carouselFoods.length === 0 && (
@@ -64,7 +76,15 @@ export default function Foods() {
         )}
       </section>
 
-      <section className="foods-page__catalogue page-content">
+      <motion.section
+        className="foods-page__catalogue page-content"
+        initial={stageIntro && !reduceMotion ? { opacity: 0 } : false}
+        animate={{ opacity: 1 }}
+        transition={{
+          duration: reduceMotion ? 0 : 0.35,
+          delay: stageIntro && !reduceMotion ? 0.15 : 0,
+        }}
+      >
         <div className="catalogue-header">
           <div>
             <h2>All foods</h2>
@@ -114,7 +134,7 @@ export default function Foods() {
             ))}
           </div>
         )}
-      </section>
+      </motion.section>
     </div>
   )
 }

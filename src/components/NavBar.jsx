@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import SearchBar from './SearchBar'
+import ThemeToggle from './ThemeToggle'
 
 export default function NavBar({ compact = false, showSearch = false }) {
   const { user, logout, isAuthenticated } = useAuth()
@@ -39,6 +40,7 @@ export default function NavBar({ compact = false, showSearch = false }) {
             Manage
           </Link>
         )}
+        <ThemeToggle />
         {isAuthenticated ? (
           <>
             <span className="nav-user">Hi, {user.username}</span>

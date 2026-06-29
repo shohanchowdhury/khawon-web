@@ -6,23 +6,45 @@ import FoodImage from './FoodImage'
 
 const SWIPE_THRESHOLD = 50
 
+function NavArrow({ direction }) {
+  return (
+    <svg className="food-stage__nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d={direction === 'prev' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 function getAccent(food) {
   return food?.accent || '#dc2626'
 }
 
-function StagePeek({ food, side, direction, reduceMotion }) {
+function StagePeek({ food, side, direction, reduceMotion, intro }) {
   if (!food) return <div className={`food-stage__peek food-stage__peek--${side}`} aria-hidden="true" />
 
   const imageUrl = getFoodDisplayImage(food)
   const slide = direction * (side === 'prev' ? -20 : 20)
+  const showIntro = intro && !reduceMotion
 
   return (
     <motion.div
       className={`food-stage__peek food-stage__peek--${side}`}
       aria-hidden="true"
-      initial={false}
+      initial={showIntro ? { opacity: 0, x: 0 } : false}
       animate={{ opacity: 0.85, x: reduceMotion ? 0 : slide }}
-      transition={{ duration: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
+      transition={
+        reduceMotion
+          ? { duration: 0 }
+          : showIntro
+            ? { duration: 0.35, ease: 'easeOut', delay: 0.18 }
+            : { duration: 0.35, ease: 'easeOut' }
+      }
     >
       <div className="food-stage__peek-inner">
         {imageUrl ? (
@@ -40,10 +62,11 @@ function StagePeek({ food, side, direction, reduceMotion }) {
   )
 }
 
-export default function FoodStage({ foods, onAccentChange }) {
+export default function FoodStage({ foods, onAccentChange, intro = false }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [direction, setDirection] = useState(0)
   const touchStartX = useRef(null)
+  const introPlayedRef = useRef(false)
   const reduceMotion = useReducedMotion()
 
   const count = foods.length
@@ -109,16 +132,40 @@ export default function FoodStage({ foods, onAccentChange }) {
     ? { duration: 0 }
     : { type: 'spring', stiffness: 320, damping: 32 }
 
-  const imageVariants = {
-    enter: (d) => ({ opacity: 0, x: d * slideOffset, scale: reduceMotion ? 1 : 0.96 }),
-    center: { opacity: 1, x: 0, scale: 1 },
-    exit: (d) => ({ opacity: 0, x: d * -slideOffset, scale: reduceMotion ? 1 : 0.96 }),
-  }
+  const showIntro = intro && !introPlayedRef.current && !reduceMotion
 
-  const textVariants = {
-    enter: { opacity: 0, x: reduceMotion ? 0 : -20, y: reduceMotion ? 0 : 8 },
-    center: { opacity: 1, x: 0, y: 0 },
-    exit: { opacity: 0, x: reduceMotion ? 0 : 16, y: reduceMotion ? 0 : -8 },
+  const imageVariants = showIntro
+    ? {
+        enter: { opacity: 0, scale: 0.82, x: 0 },
+        center: { opacity: 1, scale: 1, x: 0 },
+        exit: (d) => ({
+          opacity: 0,
+          x: d * -slideOffset,
+          scale: reduceMotion ? 1 : 0.96,
+        }),
+      }
+    : {
+        enter: (d) => ({ opacity: 0, x: d * slideOffset, scale: reduceMotion ? 1 : 0.96 }),
+        center: { opacity: 1, x: 0, scale: 1 },
+        exit: (d) => ({ opacity: 0, x: d * -slideOffset, scale: reduceMotion ? 1 : 0.96 }),
+      }
+
+  const textVariants = showIntro
+    ? {
+        enter: { opacity: 0, x: 0, y: 12 },
+        center: { opacity: 1, x: 0, y: 0 },
+        exit: { opacity: 0, x: reduceMotion ? 0 : 16, y: reduceMotion ? 0 : -8 },
+      }
+    : {
+        enter: { opacity: 0, x: reduceMotion ? 0 : -20, y: reduceMotion ? 0 : 8 },
+        center: { opacity: 1, x: 0, y: 0 },
+        exit: { opacity: 0, x: reduceMotion ? 0 : 16, y: reduceMotion ? 0 : -8 },
+      }
+
+  const handleIntroComplete = () => {
+    if (intro && !introPlayedRef.current) {
+      introPlayedRef.current = true
+    }
   }
 
   const activeImageUrl = getFoodDisplayImage(active)
@@ -142,7 +189,7 @@ export default function FoodStage({ foods, onAccentChange }) {
             disabled={activeIndex === 0}
             aria-label="Previous food"
           >
-            ‹
+            <NavArrow direction="prev" />
           </button>
         )}
 
@@ -152,6 +199,7 @@ export default function FoodStage({ foods, onAccentChange }) {
             side="prev"
             direction={direction}
             reduceMotion={reduceMotion}
+            intro={showIntro}
           />
 
           <div className="food-stage__spacer" aria-hidden="true" />
@@ -167,6 +215,7 @@ export default function FoodStage({ foods, onAccentChange }) {
                 animate="center"
                 exit="exit"
                 transition={transition}
+                onAnimationComplete={handleIntroComplete}
               >
                 {activeImageUrl ? (
                   <img
@@ -194,6 +243,7 @@ export default function FoodStage({ foods, onAccentChange }) {
             side="next"
             direction={direction}
             reduceMotion={reduceMotion}
+            intro={showIntro}
           />
         </div>
 
@@ -205,7 +255,7 @@ export default function FoodStage({ foods, onAccentChange }) {
             disabled={activeIndex === count - 1}
             aria-label="Next food"
           >
-            ›
+            <NavArrow direction="next" />
           </button>
         )}
 
@@ -221,7 +271,7 @@ export default function FoodStage({ foods, onAccentChange }) {
               exit="exit"
               transition={{
                 ...transition,
-                delay: reduceMotion ? 0 : 0.05,
+                delay: reduceMotion ? 0 : showIntro ? 0.12 : 0.05,
               }}
             >
               <h2 className="food-stage__title">{active.name}</h2>
@@ -232,7 +282,7 @@ export default function FoodStage({ foods, onAccentChange }) {
                 animate={{ opacity: 1, x: 0, y: 0 }}
                 transition={{
                   ...transition,
-                  delay: reduceMotion ? 0 : 0.08,
+                  delay: reduceMotion ? 0 : showIntro ? 0.2 : 0.08,
                 }}
               >
                 <Link

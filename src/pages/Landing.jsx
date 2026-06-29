@@ -60,7 +60,11 @@ export default function Landing() {
           </p>
 
           <div className="landing-cta">
-            <Link to="/foods" className="landing-cta__btn landing-cta__btn--primary nav-btn nav-btn--primary">
+            <Link
+              to="/foods"
+              state={{ foodStageIntro: true }}
+              className="landing-cta__btn landing-cta__btn--primary nav-btn nav-btn--primary"
+            >
               Browse foods
             </Link>
             <Link to="/restaurants" className="landing-cta__btn landing-cta__btn--secondary nav-btn">
