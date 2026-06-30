@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { getFoodCatalogue, getTopFoodTypes, listFoodTypes } from '@/api/client'
@@ -7,7 +7,7 @@ import type { FoodTypePopularOut } from '@/types/api'
 import type { CarouselFood } from '@/types/domain/featuredFood'
 import FoodStage from '@/components/FoodStage'
 import HomeAccentBackground from '@/components/HomeAccentBackground'
-import NavBar from '@/components/NavBar'
+import PageScroll from '@/components/PageScroll'
 import TopFoodCard from '@/components/TopFoodCard'
 
 export default function Foods() {
@@ -55,28 +55,69 @@ export default function Foods() {
       .finally(() => setCatalogueLoading(false))
   }, [debouncedQuery])
 
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const heroRef = useRef<HTMLElement>(null)
+  const [catalogueScrollFree, setCatalogueScrollFree] = useState(false)
+
+  useEffect(() => {
+    const scrollEl = scrollRef.current
+    const heroEl = heroRef.current
+    if (!scrollEl || !heroEl) return undefined
+
+    let raf = 0
+
+    const updateScrollSnap = () => {
+      const heroEnd = heroEl.offsetTop + heroEl.offsetHeight
+      setCatalogueScrollFree(scrollEl.scrollTop >= heroEnd - 2)
+    }
+
+    const onScroll = () => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(updateScrollSnap)
+    }
+
+    updateScrollSnap()
+    scrollEl.addEventListener('scroll', onScroll, { passive: true })
+
+    const resizeObserver = new ResizeObserver(updateScrollSnap)
+    resizeObserver.observe(heroEl)
+
+    return () => {
+      scrollEl.removeEventListener('scroll', onScroll)
+      cancelAnimationFrame(raf)
+      resizeObserver.disconnect()
+    }
+  }, [stageLoading, stageError, carouselFoods.length])
+
   return (
     <div className="foods-page">
-      <NavBar showSearch />
+      <PageScroll
+        ref={scrollRef}
+        className={`foods-page__scroll${catalogueScrollFree ? ' foods-page__scroll--free' : ''}`}
+      >
+        <section
+          ref={heroRef}
+          className="home-page home-page--feed foods-page__hero"
+        >
+          <HomeAccentBackground accent={accent} />
 
-      <section className="home-page home-page--feed foods-page__hero">
-        <HomeAccentBackground accent={accent} />
+          {stageLoading && <p className="loading home-page__loading">Loading...</p>}
+          {stageError && (
+            <div className="error-box home-page__error">
+              <p>{stageError}</p>
+            </div>
+          )}
 
-        {stageLoading && <p className="loading home-page__loading">Loading...</p>}
-        {stageError && (
-          <div className="error-box home-page__error">
-            <p>{stageError}</p>
-          </div>
-        )}
+          {!stageLoading && !stageError && carouselFoods.length > 0 && (
+            <FoodStage foods={carouselFoods} onAccentChange={setAccent} intro={stageIntro} />
+          )}
 
-        {!stageLoading && !stageError && carouselFoods.length > 0 && (
-          <FoodStage foods={carouselFoods} onAccentChange={setAccent} intro={stageIntro} />
-        )}
+          {!stageLoading && !stageError && carouselFoods.length === 0 && (
+            <p className="empty home-page__loading">No food types yet.</p>
+          )}
+        </section>
 
-        {!stageLoading && !stageError && carouselFoods.length === 0 && (
-          <p className="empty home-page__loading">No food types yet.</p>
-        )}
-      </section>
+        <div className="foods-page__catalogue-snap" aria-hidden="true" />
 
       <motion.section
         className="foods-page__catalogue page-content"
@@ -137,6 +178,7 @@ export default function Foods() {
           </div>
         )}
       </motion.section>
+      </PageScroll>
     </div>
   )
 }

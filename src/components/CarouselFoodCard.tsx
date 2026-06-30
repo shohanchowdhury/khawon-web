@@ -16,7 +16,6 @@ export default function CarouselFoodCard({
   active = false,
   size = 'default',
 }: CarouselFoodCardProps) {
-  const params = new URLSearchParams({ q: food.name })
   const imageUrl = getFoodDisplayImage(food)
   const sizeClass =
     size === 'focused'
@@ -27,9 +26,14 @@ export default function CarouselFoodCard({
           ? ' carousel-food-card--hero'
           : ''
 
+  const href =
+    'id' in food && food.id
+      ? `/food/${food.id}`
+      : `/search?q=${encodeURIComponent(food.name)}`
+
   return (
     <Link
-      to={`/search?${params.toString()}`}
+      to={href}
       className={`carousel-food-card${active ? ' carousel-food-card--active' : ''}${sizeClass}`}
       role="listitem"
     >

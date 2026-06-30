@@ -80,6 +80,13 @@ export function getFoodDisplayImage(
   return food.image_url || food.fallbackImage || null
 }
 
+export function getFoodAccent(name: string): string {
+  const match = POSTER_FOODS.find(
+    (poster) => poster.name.toLowerCase() === name.toLowerCase(),
+  )
+  return match?.accent ?? '#ef233c'
+}
+
 export function isPosterFood(name: string | null | undefined): boolean {
   return POSTER_FOODS.some(
     (poster) => poster.name.toLowerCase() === (name ?? '').toLowerCase(),

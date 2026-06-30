@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import AuthLoginForm from '@/components/AuthLoginForm'
+import AuthModalPanelFooter from '@/components/AuthModalPanelFooter'
+import AuthRegisterForm from '@/components/AuthRegisterForm'
 import { useAuth } from '@/context/AuthContext'
 import { useAuthModal } from '@/context/AuthModalContext'
 import type { AuthModalMode } from '@/types/domain/authModal'
@@ -18,7 +21,7 @@ const PANEL_HEIGHT_TRANSITION = { duration: 0.32, ease: MODAL_EASE }
 
 const TABS: { id: AuthModalMode; label: string }[] = [
   { id: 'login', label: 'Sign in' },
-  { id: 'register', label: 'Sign up' },
+  { id: 'register', label: 'Create account' },
 ]
 
 export default function AuthModal() {
@@ -85,9 +88,6 @@ export default function AuthModal() {
 
     setError('')
     setSubmitting(false)
-    if (mode === 'login') {
-      setEmail('')
-    }
   }, [isOpen, mode])
 
   useEffect(() => {
@@ -96,11 +96,11 @@ export default function AuthModal() {
     }
   }, [isAuthenticated, isOpen, closeAuthModal])
 
-  async function signIn(credentialsUsername: string, credentialsPassword: string) {
+  async function signIn(credentialsEmail: string, credentialsPassword: string) {
     setSubmitting(true)
     setError('')
     try {
-      await login(credentialsUsername, credentialsPassword)
+      await login(credentialsEmail, credentialsPassword)
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
@@ -110,11 +110,10 @@ export default function AuthModal() {
 
   async function handleLoginSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    await signIn(username, password)
+    await signIn(email, password)
   }
 
   async function handleDevSignIn() {
-    setUsername(DEV_CREDENTIALS.username)
     setPassword(DEV_CREDENTIALS.password)
     await signIn(DEV_CREDENTIALS.username, DEV_CREDENTIALS.password)
   }
@@ -166,7 +165,7 @@ export default function AuthModal() {
             transition={DIALOG_TRANSITION}
           >
             <h2 id={titleId} className="auth-modal__sr-title">
-              {mode === 'login' ? 'Sign in' : 'Sign up'}
+              {mode === 'login' ? 'Sign in' : 'Create account'}
             </h2>
 
             <div className="auth-modal__header">
@@ -193,7 +192,7 @@ export default function AuthModal() {
               </div>
             </div>
 
-            <div className="auth-modal__body">
+            <div className="auth-modal__body khawon-scrollbar">
               <motion.div
                 className="auth-modal__panels"
                 initial={false}
@@ -210,51 +209,29 @@ export default function AuthModal() {
                   animate={{ opacity: mode === 'login' ? 1 : 0 }}
                   transition={PANEL_TRANSITION}
                 >
+                  <h3 className="auth-modal__title">Welcome back</h3>
                   <p className="auth-modal__subtitle muted">
                     Sign in to post reviews and add restaurants.
                   </p>
 
-                  <form className="auth-form auth-modal__form" onSubmit={handleLoginSubmit}>
-                    <label>
-                      Username
-                      <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                        autoComplete="username"
-                        tabIndex={mode === 'login' ? 0 : -1}
-                      />
-                    </label>
-                    <label>
-                      Password
-                      <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        autoComplete="current-password"
-                        tabIndex={mode === 'login' ? 0 : -1}
-                      />
-                    </label>
-                    <p className="auth-modal__error-slot">
-                      {mode === 'login' && error ? <span className="error">{error}</span> : null}
-                    </p>
-                    <button type="submit" disabled={submitting} tabIndex={mode === 'login' ? 0 : -1}>
-                      {submitting ? 'Signing in...' : 'Sign in'}
-                    </button>
-                    {import.meta.env.DEV && (
-                      <button
-                        type="button"
-                        className="auth-form__dev-signin"
-                        onClick={handleDevSignIn}
-                        disabled={submitting}
-                        tabIndex={mode === 'login' ? 0 : -1}
-                      >
-                        Dev
-                      </button>
-                    )}
-                  </form>
+                  <AuthLoginForm
+                    email={email}
+                    password={password}
+                    onEmailChange={setEmail}
+                    onPasswordChange={setPassword}
+                    error={mode === 'login' ? error : undefined}
+                    submitting={submitting}
+                    onSubmit={handleLoginSubmit}
+                    onDevSignIn={handleDevSignIn}
+                    inactive={mode !== 'login'}
+                  />
+
+                  <AuthModalPanelFooter
+                    prompt="Don't have an account?"
+                    actionLabel="Create one"
+                    onAction={() => openAuthModal('register')}
+                    inactive={mode !== 'login'}
+                  />
                 </motion.div>
 
                 <motion.div
@@ -267,53 +244,30 @@ export default function AuthModal() {
                   animate={{ opacity: mode === 'register' ? 1 : 0 }}
                   transition={PANEL_TRANSITION}
                 >
+                  <h3 className="auth-modal__title">Create account</h3>
                   <p className="auth-modal__subtitle muted">
                     Join Khawon to review restaurants and add new listings.
                   </p>
 
-                  <form className="auth-form auth-modal__form" onSubmit={handleRegisterSubmit}>
-                    <label>
-                      Email
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        autoComplete="email"
-                        tabIndex={mode === 'register' ? 0 : -1}
-                      />
-                    </label>
-                    <label>
-                      Username
-                      <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                        minLength={3}
-                        autoComplete="username"
-                        tabIndex={mode === 'register' ? 0 : -1}
-                      />
-                    </label>
-                    <label>
-                      Password
-                      <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        minLength={6}
-                        autoComplete="new-password"
-                        tabIndex={mode === 'register' ? 0 : -1}
-                      />
-                    </label>
-                    <p className="auth-modal__error-slot">
-                      {mode === 'register' && error ? <span className="error">{error}</span> : null}
-                    </p>
-                    <button type="submit" disabled={submitting} tabIndex={mode === 'register' ? 0 : -1}>
-                      {submitting ? 'Creating account...' : 'Create account'}
-                    </button>
-                  </form>
+                  <AuthRegisterForm
+                    email={email}
+                    username={username}
+                    password={password}
+                    onEmailChange={setEmail}
+                    onUsernameChange={setUsername}
+                    onPasswordChange={setPassword}
+                    error={mode === 'register' ? error : undefined}
+                    submitting={submitting}
+                    onSubmit={handleRegisterSubmit}
+                    inactive={mode !== 'register'}
+                  />
+
+                  <AuthModalPanelFooter
+                    prompt="Already have an account?"
+                    actionLabel="Sign in"
+                    onAction={() => openAuthModal('login')}
+                    inactive={mode !== 'register'}
+                  />
                 </motion.div>
               </motion.div>
             </div>

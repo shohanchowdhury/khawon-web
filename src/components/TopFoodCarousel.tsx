@@ -176,7 +176,7 @@ export default function TopFoodCarousel({
 
         <div
           ref={trackRef}
-          className={`food-carousel__track${showScrollbar ? ' food-carousel__track--scrollbar-visible' : ''}`}
+          className={`food-carousel__track khawon-scrollbar${showScrollbar ? ' food-carousel__track--scrollbar-visible' : ''}`}
           role="list"
         >
           {foods.map((food, index) => (

@@ -12,6 +12,7 @@ import type {
   ReviewCreate,
   ReviewOut,
   SearchResult,
+  FoodDetailResult,
   Token,
   UserCreate,
   UserOut,
@@ -128,6 +129,10 @@ export function getTopFoodTypes(limit = 8): Promise<FoodTypePopularOut[]> {
 
 export function getFoodType(id: number | string): Promise<FoodTypeOut> {
   return request(`/food-types/${id}`)
+}
+
+export function getFoodDetail(id: number | string): Promise<FoodDetailResult> {
+  return request(`/food-types/${id}/detail`)
 }
 
 export function getFoodCatalogue(query = ''): Promise<FoodTypePopularOut[]> {
@@ -280,9 +285,9 @@ export function registerUser(data: UserCreate): Promise<UserOut> {
   })
 }
 
-export function loginUser(username: string, password: string): Promise<Token> {
+export function loginUser(identifier: string, password: string): Promise<Token> {
   const body = new URLSearchParams()
-  body.set('username', username)
+  body.set('username', identifier)
   body.set('password', password)
   return request('/auth/login', { method: 'POST', body })
 }

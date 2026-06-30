@@ -3,7 +3,9 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { getRestaurant, getRestaurantReviews } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import type { RestaurantOut, ReviewOut } from '@/types/api'
-import NavBar from '@/components/NavBar'
+import DetailHeader from '@/components/DetailHeader'
+import DetailMeta from '@/components/DetailMeta'
+import PageScroll from '@/components/PageScroll'
 import FoodImage from '@/components/FoodImage'
 import ReviewForm from '@/components/ReviewForm'
 import StarRating from '@/components/StarRating'
@@ -44,18 +46,22 @@ export default function RestaurantDetail() {
     foodTypeId ||
     restaurant?.food_types?.[0]?.id
 
+  const backHref = activeFoodTypeId
+    ? `/food/${activeFoodTypeId}`
+    : searchQuery
+      ? `/search?q=${encodeURIComponent(searchQuery)}`
+      : null
+
   return (
     <div className="page">
-      <header className="page-header">
-        <NavBar compact />
-        {searchQuery && (
-          <Link to={`/search?q=${encodeURIComponent(searchQuery)}`} className="back-link">
-            ← Back to results
+      <PageScroll>
+        <main className="page-content page-content--narrow">
+        {backHref && (
+          <Link to={backHref} className="back-link page-back-link">
+            ← Back to {activeFoodTypeId ? 'food' : 'results'}
           </Link>
         )}
-      </header>
 
-      <main className="page-content page-content--narrow">
         {loading && <p className="loading">Loading...</p>}
         {error && <div className="error-box"><p>{error}</p></div>}
 
@@ -68,22 +74,19 @@ export default function RestaurantDetail() {
                 className="food-hero__media"
                 priority
               />
-              <div className="food-hero__text detail-header">
-                <div className="detail-header__row">
-                  <h1>{restaurant.name}</h1>
-                  {isAuthenticated && (
-                    <Link to={`/manage/restaurant/${restaurant.id}`} className="edit-link">
-                      Edit
-                    </Link>
-                  )}
-                </div>
-                {restaurant.area && <span className="badge badge--large">{restaurant.area}</span>}
-                <div className="detail-meta">
-                  <StarRating rating={restaurant.average_rating} size="lg" />
-                  <span className="review-count">
-                    {restaurant.review_count} review{restaurant.review_count !== 1 ? 's' : ''}
-                  </span>
-                </div>
+              <div className="food-hero__text">
+                <DetailHeader
+                  title={restaurant.name}
+                  editHref={
+                    isAuthenticated ? `/manage/restaurant/${restaurant.id}` : undefined
+                  }
+                >
+                  {restaurant.area && <span className="badge badge--large">{restaurant.area}</span>}
+                  <DetailMeta
+                    rating={restaurant.average_rating}
+                    reviewCount={restaurant.review_count}
+                  />
+                </DetailHeader>
               </div>
             </section>
 
@@ -148,6 +151,7 @@ export default function RestaurantDetail() {
           </>
         )}
       </main>
+      </PageScroll>
     </div>
   )
 }

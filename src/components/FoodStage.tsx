@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { NavButtonLink } from '@/components/NavButton'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getFoodDisplayImage } from '@/config/featuredFoods'
 import type { CarouselFood } from '@/types/domain/featuredFood'
@@ -142,7 +143,9 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
 
   if (!active) return null
 
-  const searchParams = new URLSearchParams({ q: active.name })
+  const foodDetailHref = active.id
+    ? `/food/${active.id}`
+    : `/search?q=${encodeURIComponent(active.name)}`
   const showIntro = intro && !introPlayedRef.current
 
   const imageVariants = showIntro
@@ -161,16 +164,20 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
         exit: (d: number) => ({ opacity: 0, x: d * -SLIDE_OFFSET, scale: 0.96 }),
       }
 
-  const textVariants = showIntro
+  const footerVariants = showIntro
     ? {
         enter: { opacity: 0, x: 0, y: 12 },
         center: { opacity: 1, x: 0, y: 0 },
-        exit: { opacity: 0, x: 16, y: -8 },
+        exit: (d: number) => ({
+          opacity: 0,
+          x: d * -SLIDE_OFFSET,
+          y: -8,
+        }),
       }
     : {
-        enter: { opacity: 0, x: -20, y: 8 },
+        enter: (d: number) => ({ opacity: 0, x: d * SLIDE_OFFSET, y: 8 }),
         center: { opacity: 1, x: 0, y: 0 },
-        exit: { opacity: 0, x: 16, y: -8 },
+        exit: (d: number) => ({ opacity: 0, x: d * -SLIDE_OFFSET, y: -8 }),
       }
 
   const handleIntroComplete = () => {
@@ -227,21 +234,27 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
                 transition={STAGE_TRANSITION}
                 onAnimationComplete={handleIntroComplete}
               >
-                {activeImageUrl ? (
-                  <img
-                    src={activeImageUrl}
-                    alt={active.name}
-                    className="food-stage__image"
-                    loading="eager"
-                    fetchPriority="high"
-                  />
-                ) : (
-                  <FoodImage
-                    name={active.name}
-                    className="food-stage__image"
-                    priority
-                  />
-                )}
+                <Link
+                  to={foodDetailHref}
+                  className="food-stage__image-link"
+                  aria-label={`View ${active.name} details`}
+                >
+                  {activeImageUrl ? (
+                    <img
+                      src={activeImageUrl}
+                      alt={active.name}
+                      className="food-stage__image"
+                      loading="eager"
+                      fetchPriority="high"
+                    />
+                  ) : (
+                    <FoodImage
+                      name={active.name}
+                      className="food-stage__image"
+                      priority
+                    />
+                  )}
+                </Link>
               </motion.div>
             </AnimatePresence>
           </div>
@@ -274,7 +287,7 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
               key={`meta-${active.id ?? active.name}`}
               className="food-stage__footer-inner"
               custom={direction}
-              variants={textVariants}
+              variants={footerVariants}
               initial="enter"
               animate="center"
               exit="exit"
@@ -285,22 +298,15 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
             >
               <h2 className="food-stage__title">{active.name}</h2>
 
-              <motion.div
-                className="food-stage__cta-wrap"
-                initial={{ opacity: 0, x: 16, y: 8 }}
-                animate={{ opacity: 1, x: 0, y: 0 }}
-                transition={{
-                  ...STAGE_TRANSITION,
-                  delay: showIntro ? 0.2 : 0.08,
-                }}
-              >
-                <Link
-                  to={`/search?${searchParams.toString()}`}
-                  className="food-stage__cta nav-btn nav-btn--primary"
+              <div className="food-stage__cta-wrap">
+                <NavButtonLink
+                  to={foodDetailHref}
+                  variant="primary"
+                  className="food-stage__cta"
                 >
                   Find {active.name} near you
-                </Link>
-              </motion.div>
+                </NavButtonLink>
+              </div>
             </motion.div>
           </AnimatePresence>
         </div>

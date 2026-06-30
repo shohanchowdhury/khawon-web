@@ -9,7 +9,7 @@ import {
 } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import type { FoodTypeOut, PlaceSearchResult } from '@/types/api'
-import NavBar from '@/components/NavBar'
+import PageScroll from '@/components/PageScroll'
 import RestaurantPhotoPicker from '@/components/RestaurantPhotoPicker'
 
 export default function EditRestaurant() {
@@ -185,9 +185,9 @@ export default function EditRestaurant() {
 
   return (
     <div className="page">
-      <NavBar compact />
-      <main className="page-content">
-        <Link to="/manage" className="back-link">← Back to manage</Link>
+      <PageScroll>
+        <main className="page-content">
+        <Link to="/manage" className="back-link page-back-link">← Back to manage</Link>
         <h1>Edit restaurant</h1>
 
         {pageLoading && <p className="loading">Loading...</p>}
@@ -299,6 +299,7 @@ export default function EditRestaurant() {
           </form>
         )}
       </main>
+      </PageScroll>
     </div>
   )
 }

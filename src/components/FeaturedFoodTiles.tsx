@@ -10,13 +10,15 @@ export default function FeaturedFoodTiles({ foods }: FeaturedFoodTilesProps) {
   return (
     <div className="featured-tiles">
       {foods.map((food, index) => {
-        const params = new URLSearchParams({ q: food.name })
         const imageUrl = food.image_url || food.fallbackImage
+        const href = food.id
+          ? `/food/${food.id}`
+          : `/search?q=${encodeURIComponent(food.name)}`
 
         return (
           <Link
             key={food.name}
-            to={`/search?${params.toString()}`}
+            to={href}
             className={`featured-tile featured-tile--${food.slug}`}
             style={{
               '--tile-accent': food.accent,

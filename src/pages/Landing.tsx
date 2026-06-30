@@ -1,24 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { getTopFoodTypes, listFoodTypes } from '@/api/client'
-import {
-  buildCarouselFoods,
-  getFoodDisplayImage,
-  HOME_CAROUSEL_LIMIT,
-} from '@/config/featuredFoods'
+import { buildCarouselFoods, HOME_CAROUSEL_LIMIT } from '@/config/featuredFoods'
 import { LANDING_PATTERN } from '@/config/landingBackground'
 import { useAuth } from '@/context/AuthContext'
 import { useAuthModal } from '@/context/AuthModalContext'
 import type { CarouselFood } from '@/types/domain/featuredFood'
-import FoodImage from '@/components/FoodImage'
-import NavBar from '@/components/NavBar'
+import LandingCta from '@/components/LandingCta'
+import LandingShowcase from '@/components/LandingShowcase'
 import { useLandingPatternDrift } from '@/hooks/useLandingPatternDrift'
-
-const SHOWCASE_LIMIT = 3
-
-function getAccent(food: CarouselFood): string {
-  return ('accent' in food && food.accent) ? food.accent : '#ef233c'
-}
 
 export default function Landing() {
   const { isAuthenticated } = useAuth()
@@ -29,11 +18,7 @@ export default function Landing() {
   useEffect(() => {
     Promise.all([listFoodTypes(), getTopFoodTypes(12)])
       .then(([allFoods, topList]) => {
-        setShowcaseFoods(
-          buildCarouselFoods(allFoods, topList)
-            .slice(0, HOME_CAROUSEL_LIMIT)
-            .slice(0, SHOWCASE_LIMIT),
-        )
+        setShowcaseFoods(buildCarouselFoods(allFoods, topList).slice(0, HOME_CAROUSEL_LIMIT))
       })
       .catch(() => setShowcaseFoods([]))
   }, [])
@@ -51,9 +36,7 @@ export default function Landing() {
           '--pattern-duration': `${LANDING_PATTERN.duration}s`,
         }}
       />
-      <NavBar />
-
-      <main className="landing-hero">
+      <main className="landing-hero khawon-scrollbar">
         <div className="landing-hero__copy">
           <p className="landing-hero__wordmark">খাওন</p>
           <h1 className="landing-hero__title">
@@ -65,18 +48,7 @@ export default function Landing() {
             Discover Bangladesh&apos;s best food and the restaurants that serve it.
           </p>
 
-          <div className="landing-cta">
-            <Link
-              to="/foods"
-              state={{ foodStageIntro: true }}
-              className="landing-cta__btn landing-cta__btn--primary nav-btn nav-btn--primary"
-            >
-              Browse foods
-            </Link>
-            <Link to="/restaurants" className="landing-cta__btn landing-cta__btn--secondary nav-btn">
-              Browse restaurants
-            </Link>
-          </div>
+          <LandingCta />
 
           {!isAuthenticated && (
             <p className="landing-hero__auth muted">
@@ -92,32 +64,7 @@ export default function Landing() {
           )}
         </div>
 
-        <div className="landing-showcase" aria-hidden="true">
-          <div className="landing-showcase__glow" />
-          {showcaseFoods.map((food, index) => {
-            const imageUrl = getFoodDisplayImage(food)
-            const className = `landing-showcase__food landing-showcase__food--${index}`
-
-            return imageUrl ? (
-              <img
-                key={food.id ?? food.name}
-                src={imageUrl}
-                alt=""
-                className={className}
-                style={{ '--showcase-accent': getAccent(food) }}
-                loading="eager"
-              />
-            ) : (
-              <FoodImage
-                key={food.id ?? food.name}
-                name={food.name}
-                className={className}
-                style={{ '--showcase-accent': getAccent(food) }}
-                priority
-              />
-            )
-          })}
-        </div>
+        <LandingShowcase foods={showcaseFoods} />
       </main>
     </div>
   )

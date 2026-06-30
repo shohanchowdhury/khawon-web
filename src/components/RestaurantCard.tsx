@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import type { RestaurantOut } from '@/types/api'
 import FoodImage from '@/components/FoodImage'
 import StarRating from '@/components/StarRating'
+import { buildRestaurantLink } from '@/utils/restaurantLink'
 
 interface RestaurantCardProps {
   restaurant: RestaurantOut
@@ -18,14 +19,9 @@ export default function RestaurantCard({
   showFoodTypes = false,
   showImage = true,
 }: RestaurantCardProps) {
-  const params = new URLSearchParams()
-  if (foodTypeId) params.set('foodTypeId', String(foodTypeId))
-  if (searchQuery) params.set('q', searchQuery)
-  const query = params.toString()
-
   return (
     <Link
-      to={`/restaurant/${restaurant.id}${query ? `?${query}` : ''}`}
+      to={buildRestaurantLink(restaurant.id, { foodTypeId, searchQuery })}
       className={`restaurant-card${showImage ? ' restaurant-card--with-image' : ''}`}
     >
       {showImage && (

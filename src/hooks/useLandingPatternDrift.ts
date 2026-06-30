@@ -2,7 +2,10 @@ import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import { LANDING_PATTERN } from '@/config/landingBackground'
 
-const MOBILE_TILE = { width: 520, height: 283 } as const
+const MOBILE_TILE = {
+  width: LANDING_PATTERN.mobileTileWidth,
+  height: LANDING_PATTERN.mobileTileHeight,
+} as const
 
 function getDriftTarget(): { width: number; height: number } {
   if (window.matchMedia('(max-width: 767px)').matches) {

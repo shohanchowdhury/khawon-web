@@ -21,7 +21,7 @@ import type {
 import ContributeForms from '@/components/ContributeForms'
 import FoodImage from '@/components/FoodImage'
 import FoodPhotoPicker from '@/components/FoodPhotoPicker'
-import NavBar from '@/components/NavBar'
+import PageScroll from '@/components/PageScroll'
 import RestaurantPhotoPicker from '@/components/RestaurantPhotoPicker'
 
 interface FoodPhotoEditorProps {
@@ -301,11 +301,8 @@ export default function Manage() {
 
   return (
     <div className="page">
-      <header className="page-header page-header--stacked">
-        <NavBar compact />
-      </header>
-
-      <main className="page-content">
+      <PageScroll>
+        <main className="page-content">
         <div className="catalogue-header">
           <div>
             <h1>Manage</h1>
@@ -431,6 +428,7 @@ export default function Manage() {
           </>
         )}
       </main>
+      </PageScroll>
     </div>
   )
 }

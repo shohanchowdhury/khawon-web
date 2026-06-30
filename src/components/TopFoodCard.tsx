@@ -5,13 +5,16 @@ import StarRating from '@/components/StarRating'
 
 interface TopFoodCardProps {
   food: FoodTypePopularOut
+  fromSearch?: string
 }
 
-export default function TopFoodCard({ food }: TopFoodCardProps) {
-  const params = new URLSearchParams({ q: food.name })
-
+export default function TopFoodCard({ food, fromSearch }: TopFoodCardProps) {
   return (
-    <Link to={`/search?${params.toString()}`} className="food-card">
+    <Link
+      to={`/food/${food.id}`}
+      state={fromSearch ? { fromSearch } : undefined}
+      className="food-card"
+    >
       <FoodImage name={food.name} imageUrl={food.image_url} />
       <div className="food-card__body">
         <div className="food-card__header">

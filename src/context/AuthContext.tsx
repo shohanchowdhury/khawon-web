@@ -37,8 +37,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void refreshUser()
   }, [refreshUser])
 
-  async function login(username: string, password: string) {
-    const { access_token } = await loginUser(username, password)
+  async function login(email: string, password: string) {
+    const { access_token } = await loginUser(email, password)
     setToken(access_token)
     const me = await getMe()
     setUser(me)

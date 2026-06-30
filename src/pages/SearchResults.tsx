@@ -1,43 +1,37 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { searchFood } from '@/api/client'
-import { useAuth } from '@/context/AuthContext'
-import type { SearchResult } from '@/types/api'
-import FoodImage from '@/components/FoodImage'
-import SearchBar from '@/components/SearchBar'
-import NavBar from '@/components/NavBar'
-import RestaurantCard from '@/components/RestaurantCard'
+import { useSearchParams } from 'react-router-dom'
+import { getFoodCatalogue } from '@/api/client'
+import type { FoodTypePopularOut } from '@/types/api'
+import PageScroll from '@/components/PageScroll'
+import TopFoodCard from '@/components/TopFoodCard'
 
 export default function SearchResults() {
   const [searchParams] = useSearchParams()
-  const { isAuthenticated } = useAuth()
   const query = searchParams.get('q') || ''
-  const [result, setResult] = useState<SearchResult | null>(null)
+  const [foods, setFoods] = useState<FoodTypePopularOut[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     if (!query) {
+      setFoods([])
       setLoading(false)
       return
     }
 
     setLoading(true)
     setError('')
-    searchFood(query)
-      .then(setResult)
+
+    getFoodCatalogue(query)
+      .then(setFoods)
       .catch((err) => setError(err instanceof Error ? err.message : String(err)))
       .finally(() => setLoading(false))
   }, [query])
 
   return (
-    <div className="page">
-      <header className="page-header page-header--stacked">
-        <NavBar compact />
-        <SearchBar defaultValue={query} />
-      </header>
-
-      <main className="page-content">
+    <div className="page search-page">
+      <PageScroll>
+        <main className="page-content">
         {!query && <p className="empty">Enter a food type to search.</p>}
 
         {loading && <p className="loading">Loading...</p>}
@@ -49,58 +43,28 @@ export default function SearchResults() {
           </div>
         )}
 
-        {result && (
+        {!loading && !error && query && (
           <>
-            <section className="food-hero">
-              <FoodImage
-                name={result.food_type.name}
-                imageUrl={result.food_type.image_url}
-                className="food-hero__media"
-                priority
-              />
-              <div className="food-hero__text">
-                <div className="detail-header__row">
-                  <h1>{result.food_type.name}</h1>
-                  {isAuthenticated && (
-                    <Link to={`/manage/food/${result.food_type.id}`} className="edit-link">
-                      Edit
-                    </Link>
-                  )}
-                </div>
-                {result.food_type.description && (
-                  <p className="food-hero__desc">{result.food_type.description}</p>
-                )}
-              </div>
-            </section>
+            <div className="results-header">
+              <h1>Results for &ldquo;{query}&rdquo;</h1>
+              <p className="results-count muted">
+                {foods.length} food{foods.length !== 1 ? 's' : ''} found
+              </p>
+            </div>
 
-            <section className="food-restaurants">
-              <div className="results-header">
-                <h2>Top restaurants</h2>
-                <p className="results-count">
-                  {result.restaurants.length} restaurant
-                  {result.restaurants.length !== 1 ? 's' : ''} serving{' '}
-                  {result.food_type.name}
-                </p>
+            {foods.length === 0 ? (
+              <p className="empty">No foods match your search. Try a different name.</p>
+            ) : (
+              <div className="top-foods__grid catalogue-grid food-search-results">
+                {foods.map((food) => (
+                  <TopFoodCard key={food.id} food={food} fromSearch={query} />
+                ))}
               </div>
-
-              {result.restaurants.length === 0 ? (
-                <p className="empty">No restaurants serve this food type yet.</p>
-              ) : (
-                <div className="restaurant-grid">
-                  {result.restaurants.map((restaurant) => (
-                    <RestaurantCard
-                      key={restaurant.id}
-                      restaurant={restaurant}
-                      foodTypeId={result.food_type.id}
-                      searchQuery={query}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
+            )}
           </>
         )}
-      </main>
+        </main>
+      </PageScroll>
     </div>
   )
 }

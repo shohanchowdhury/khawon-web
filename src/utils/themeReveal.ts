@@ -53,6 +53,9 @@ const THEME_VAR_NAMES = [
   '--pattern-opacity',
   '--theme-toggle-icon',
   '--theme-toggle-bg',
+  '--scrollbar-track',
+  '--scrollbar-thumb',
+  '--scrollbar-thumb-hover',
 ] as const
 
 function easeInOutCubic(t: number): number {

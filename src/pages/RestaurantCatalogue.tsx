@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getRestaurantCatalogue } from '@/api/client'
 import type { RestaurantOut } from '@/types/api'
-import NavBar from '@/components/NavBar'
+import PageScroll from '@/components/PageScroll'
 import RestaurantCard from '@/components/RestaurantCard'
 
 export default function RestaurantCatalogue() {
@@ -28,11 +28,8 @@ export default function RestaurantCatalogue() {
 
   return (
     <div className="page">
-      <header className="page-header page-header--stacked">
-        <NavBar compact />
-      </header>
-
-      <main className="page-content">
+      <PageScroll>
+        <main className="page-content">
         <div className="catalogue-header">
           <div>
             <h1>Restaurants</h1>
@@ -87,6 +84,7 @@ export default function RestaurantCatalogue() {
           </div>
         )}
       </main>
+      </PageScroll>
     </div>
   )
 }

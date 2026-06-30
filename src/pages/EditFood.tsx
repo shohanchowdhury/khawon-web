@@ -4,7 +4,7 @@ import { getFoodType, searchFoodImages, updateFoodType } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import type { FoodImageSearchResult } from '@/types/api'
 import FoodPhotoPicker from '@/components/FoodPhotoPicker'
-import NavBar from '@/components/NavBar'
+import PageScroll from '@/components/PageScroll'
 
 export default function EditFood() {
   const { id } = useParams<{ id: string }>()
@@ -108,9 +108,9 @@ export default function EditFood() {
 
   return (
     <div className="page">
-      <NavBar compact />
-      <main className="page-content page-content--narrow">
-        <Link to="/manage" className="back-link">← Back to manage</Link>
+      <PageScroll>
+        <main className="page-content page-content--narrow">
+        <Link to="/manage" className="back-link page-back-link">← Back to manage</Link>
         <h1>Edit food type</h1>
 
         {pageLoading && <p className="loading">Loading...</p>}
@@ -164,6 +164,7 @@ export default function EditFood() {
           </form>
         )}
       </main>
+      </PageScroll>
     </div>
   )
 }
