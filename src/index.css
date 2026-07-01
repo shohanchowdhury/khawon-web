@@ -917,12 +917,14 @@ textarea {
   flex-direction: column;
   justify-content: center;
   position: relative;
+  overflow: hidden;
   z-index: 1;
   padding: 0.5rem 0 0.75rem;
 }
 
 .food-stage__viewport {
   position: relative;
+  z-index: 1;
   width: 100%;
   flex: 1;
   min-height: 0;
@@ -931,6 +933,8 @@ textarea {
 }
 
 .food-stage__photos {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   width: 100%;
@@ -978,6 +982,87 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.food-stage__keywords {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.072;
+}
+
+.food-stage__keywords-field {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 300vmax;
+  height: 300vmax;
+  transform: translate(-50%, -50%) rotate(45deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: clamp(1rem, 2.4vh, 2rem);
+  opacity: 0.64;
+}
+
+.food-stage__keywords-field--tr {
+  transform: translate(-50%, -50%) rotate(45deg) translate(20vmax, -20vmax);
+  opacity: 0.16;
+}
+
+.food-stage__keywords-field--bl {
+  transform: translate(-50%, -50%) rotate(45deg) translate(-20vmax, 20vmax);
+  opacity: 0.16;
+}
+
+.food-stage__keywords-line {
+  overflow: hidden;
+  width: 100%;
+  flex-shrink: 0;
+  min-height: clamp(1.6rem, 2.8vh, 2.5rem);
+  line-height: 1.15;
+}
+
+.food-stage__keywords-track {
+  display: flex;
+  width: max-content;
+  animation: food-stage-keywords-drift-ne var(--keywords-duration, 32s) linear infinite;
+  animation-delay: var(--keywords-delay, 0s);
+}
+
+.food-stage__keywords-text {
+  flex-shrink: 0;
+  padding-right: 2.5rem;
+  font-size: clamp(1.35rem, 3.8vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--home-accent) 22%, var(--text-muted));
+}
+
+.food-stage__keywords-line--lg .food-stage__keywords-text {
+  font-size: clamp(1.75rem, 5vw, 3.25rem);
+}
+
+.food-stage__keywords-line--lg {
+  min-height: clamp(2rem, 3.2vh, 3rem);
+}
+
+.food-stage__keywords-line--sm .food-stage__keywords-text {
+  font-size: clamp(1.1rem, 2.8vw, 2rem);
+  opacity: 0.28;
+}
+
+@keyframes food-stage-keywords-drift-ne {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
 }
 
 .food-stage__center-frame {
@@ -1651,6 +1736,18 @@ textarea {
 
   .food-stage__title {
     font-size: clamp(2.25rem, 12vw, 3.5rem);
+  }
+
+  .food-stage__keywords {
+    opacity: 0.064;
+  }
+
+  .food-stage__keywords-field {
+    gap: clamp(0.85rem, 2vh, 1.65rem);
+  }
+
+  .food-stage__keywords-track {
+    animation-duration: calc(var(--keywords-duration, 32s) + 64s);
   }
 
   .food-carousel--hero .carousel-food-card__media {
@@ -2568,7 +2665,7 @@ textarea {
 .nav-bar__search {
   min-width: 0;
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .nav-bar--compact {

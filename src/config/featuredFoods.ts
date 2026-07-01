@@ -50,6 +50,7 @@ export function resolvePosterFoods(
       ...poster,
       id: match?.id ?? stats?.id,
       image_url: match?.image_url ?? stats?.image_url,
+      taste_tags: match?.taste_tags ?? stats?.taste_tags ?? null,
       review_count: stats?.review_count ?? 0,
       restaurant_count: stats?.restaurant_count ?? 0,
       average_rating: stats?.average_rating,

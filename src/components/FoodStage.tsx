@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { getFoodDisplayImage } from '@/config/featuredFoods'
 import type { CarouselFood } from '@/types/domain/featuredFood'
 import FoodImage from '@/components/FoodImage'
+import FoodStageKeywordDrift from '@/components/FoodStageKeywordDrift'
 
 const SWIPE_THRESHOLD = 50
 const SLIDE_OFFSET = 48
@@ -31,6 +32,13 @@ function NavArrow({ direction }: NavArrowProps) {
 
 function getAccent(food: CarouselFood): string {
   return ('accent' in food && food.accent) ? food.accent : '#ef233c'
+}
+
+function getTasteTags(food: CarouselFood): string[] | null {
+  if ('taste_tags' in food && food.taste_tags?.length) {
+    return food.taste_tags
+  }
+  return null
 }
 
 interface StagePeekProps {
@@ -164,22 +172,6 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
         exit: (d: number) => ({ opacity: 0, x: d * -SLIDE_OFFSET, scale: 0.96 }),
       }
 
-  const footerVariants = showIntro
-    ? {
-        enter: { opacity: 0, x: 0, y: 12 },
-        center: { opacity: 1, x: 0, y: 0 },
-        exit: (d: number) => ({
-          opacity: 0,
-          x: d * -SLIDE_OFFSET,
-          y: -8,
-        }),
-      }
-    : {
-        enter: (d: number) => ({ opacity: 0, x: d * SLIDE_OFFSET, y: 8 }),
-        center: { opacity: 1, x: 0, y: 0 },
-        exit: (d: number) => ({ opacity: 0, x: d * -SLIDE_OFFSET, y: -8 }),
-      }
-
   const handleIntroComplete = () => {
     if (intro && !introPlayedRef.current) {
       introPlayedRef.current = true
@@ -187,6 +179,7 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
   }
 
   const activeImageUrl = getFoodDisplayImage(active)
+  const tasteTags = getTasteTags(active)
 
   return (
     <section
@@ -194,6 +187,15 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
       style={{ '--home-accent': getAccent(active) }}
       aria-label="Featured foods"
     >
+      <AnimatePresence mode="wait">
+        {tasteTags ? (
+          <FoodStageKeywordDrift
+            key={`keywords-${active.id ?? active.name}`}
+            tags={tasteTags}
+          />
+        ) : null}
+      </AnimatePresence>
+
       <div
         className="food-stage__viewport"
         onTouchStart={onTouchStart}
@@ -282,33 +284,19 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
         )}
 
         <div className="food-stage__footer" aria-live="polite">
-          <AnimatePresence mode="wait" custom={direction}>
-            <motion.div
-              key={`meta-${active.id ?? active.name}`}
-              className="food-stage__footer-inner"
-              custom={direction}
-              variants={footerVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                ...STAGE_TRANSITION,
-                delay: showIntro ? 0.12 : 0.05,
-              }}
-            >
-              <h2 className="food-stage__title">{active.name}</h2>
+          <div className="food-stage__footer-inner">
+            <h2 className="food-stage__title">{active.name}</h2>
 
-              <div className="food-stage__cta-wrap">
-                <NavButtonLink
-                  to={foodDetailHref}
-                  variant="primary"
-                  className="food-stage__cta"
-                >
-                  Find {active.name} near you
-                </NavButtonLink>
-              </div>
-            </motion.div>
-          </AnimatePresence>
+            <div className="food-stage__cta-wrap">
+              <NavButtonLink
+                to={foodDetailHref}
+                variant="primary"
+                className="food-stage__cta"
+              >
+                Find {active.name} near you
+              </NavButtonLink>
+            </div>
+          </div>
         </div>
 
         {count > 1 && (

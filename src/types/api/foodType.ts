@@ -5,6 +5,7 @@ export interface FoodTypeOut {
   name: string
   description: string | null
   image_url: string | null
+  taste_tags?: string[] | null
 }
 
 export interface FoodTypePopularOut extends FoodTypeOut {
