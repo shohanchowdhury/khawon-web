@@ -1,18 +1,19 @@
 /** Mirrors khawon-api/schemas.py — ReviewOut, ReviewCreate */
 
 export interface ReviewCreate {
-  restaurant_id: number
-  food_type_id: number
+  dish_id: number
   rating: number
   comment?: string
 }
 
 export interface ReviewOut {
   id: number
+  dish_id: number
   restaurant_id: number
-  food_type_id: number
-  reviewer_name: string | null
+  dish_name: string | null
+  username: string
   rating: number
   comment: string | null
+  is_verified: boolean
   created_at: string
 }

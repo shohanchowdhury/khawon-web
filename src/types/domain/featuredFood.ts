@@ -10,7 +10,6 @@ export interface PosterFoodConfig {
 export interface PosterFood extends PosterFoodConfig {
   id?: number
   image_url?: string | null
-  taste_tags?: string[] | null
   review_count: number
   restaurant_count: number
   average_rating?: number | null

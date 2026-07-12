@@ -166,7 +166,6 @@ export default function EditRestaurant() {
         google_place_id: googlePlaceId.trim() || undefined,
         google_photo_name: selectedGooglePhotoName.trim() || undefined,
         image: uploadFile ?? undefined,
-        food_type_ids: selectedFoodIds,
       })
       setCurrentImageUrl(updated.image_url)
       setUploadFile(null)

@@ -14,7 +14,18 @@ export type {
   RestaurantPhotoUpdatePayload,
 } from './restaurant'
 export type { ReviewCreate, ReviewOut } from './review'
-export type { SearchResult, FoodDetailResult } from './search'
+export type {
+  DishOut,
+  DishVariationOut,
+  CuisineOut,
+  FlavorTagOut,
+  RestaurantSummaryOut,
+  CanonicalDishOut,
+  CanonicalDishMatch,
+  DishSearchResult,
+  DishCompareResult,
+} from './dish'
+export type { FoodDetailResult } from './search'
 export type {
   PlacePhotoOut,
   PlaceSearchResult,

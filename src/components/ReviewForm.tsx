@@ -2,16 +2,17 @@ import { useState, type FormEvent } from 'react'
 import { submitReview } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { useAuthModal } from '@/context/AuthModalContext'
+import type { DishOut } from '@/types/api'
 
 interface ReviewFormProps {
-  restaurantId: number
-  foodTypeId: number
+  dishes: DishOut[]
   onSubmitted?: () => void
 }
 
-export default function ReviewForm({ restaurantId, foodTypeId, onSubmitted }: ReviewFormProps) {
+export default function ReviewForm({ dishes, onSubmitted }: ReviewFormProps) {
   const { isAuthenticated } = useAuth()
   const { openAuthModal } = useAuthModal()
+  const [dishId, setDishId] = useState<number | ''>('')
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -20,7 +21,7 @@ export default function ReviewForm({ restaurantId, foodTypeId, onSubmitted }: Re
   if (!isAuthenticated) {
     return (
       <div className="review-form review-form--prompt">
-        <h3>Leave a review</h3>
+        <h3>Review a dish</h3>
         <p className="muted">Sign in to share your experience.</p>
         <button
           type="button"
@@ -33,18 +34,26 @@ export default function ReviewForm({ restaurantId, foodTypeId, onSubmitted }: Re
     )
   }
 
+  if (dishes.length === 0) {
+    return null
+  }
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (dishId === '') {
+      setError('Pick the dish you tried.')
+      return
+    }
     setSubmitting(true)
     setError('')
 
     try {
       await submitReview({
-        restaurant_id: restaurantId,
-        food_type_id: foodTypeId,
+        dish_id: dishId,
         rating,
         comment: comment.trim() || undefined,
       })
+      setDishId('')
       setRating(5)
       setComment('')
       onSubmitted?.()
@@ -57,7 +66,24 @@ export default function ReviewForm({ restaurantId, foodTypeId, onSubmitted }: Re
 
   return (
     <form className="review-form" onSubmit={handleSubmit}>
-      <h3>Leave a review</h3>
+      <h3>Review a dish</h3>
+
+      <label>
+        Dish
+        <select
+          value={dishId}
+          onChange={(e) => setDishId(e.target.value ? Number(e.target.value) : '')}
+          required
+        >
+          <option value="">Which dish did you try?</option>
+          {dishes.map((dish) => (
+            <option key={dish.id} value={dish.id}>
+              {dish.name}
+              {dish.price_bdt != null ? ` — ${dish.price_bdt} tk` : ''}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <label>
         Rating
@@ -82,7 +108,7 @@ export default function ReviewForm({ restaurantId, foodTypeId, onSubmitted }: Re
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={3}
-          placeholder="Share your experience..."
+          placeholder="How was it?"
         />
       </label>
 

@@ -26,7 +26,6 @@ export interface RestaurantCreatePayload {
   website_url?: string
   google_place_id?: string
   google_photo_name?: string
-  food_type_ids?: number[]
   image?: File
 }
 

@@ -11,11 +11,13 @@ import type {
   RestaurantPhotoUpdatePayload,
   ReviewCreate,
   ReviewOut,
-  SearchResult,
   FoodDetailResult,
   Token,
   UserCreate,
   UserOut,
+  DishOut,
+  DishSearchResult,
+  DishCompareResult,
 } from '@/types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -100,8 +102,20 @@ export async function requestVoid(path: string, options: RequestInit = {}): Prom
   }
 }
 
-export function searchFood(query: string): Promise<SearchResult> {
-  return request(`/search/?q=${encodeURIComponent(query)}`)
+export function searchDishes(query: string): Promise<DishSearchResult> {
+  return request(`/dishes/search?q=${encodeURIComponent(query)}`)
+}
+
+export function compareDish(canonicalDishId: number | string): Promise<DishCompareResult> {
+  return request(`/dishes/compare/${canonicalDishId}`)
+}
+
+export function getDish(id: number | string): Promise<DishOut> {
+  return request(`/dishes/${id}`)
+}
+
+export function getDishReviews(id: number | string): Promise<ReviewOut[]> {
+  return request(`/dishes/${id}/reviews`)
 }
 
 export function getRestaurant(id: number | string): Promise<RestaurantOut> {
@@ -110,6 +124,10 @@ export function getRestaurant(id: number | string): Promise<RestaurantOut> {
 
 export function getRestaurantReviews(id: number | string): Promise<ReviewOut[]> {
   return request(`/restaurants/${id}/reviews`)
+}
+
+export function getRestaurantDishes(id: number | string): Promise<DishOut[]> {
+  return request(`/restaurants/${id}/dishes`)
 }
 
 export function submitReview(data: ReviewCreate): Promise<ReviewOut> {
@@ -243,7 +261,6 @@ function buildRestaurantFormData(data: RestaurantCreatePayload): FormData {
   if (data.website_url) body.append('website_url', data.website_url)
   if (data.google_place_id) body.append('google_place_id', data.google_place_id)
   if (data.google_photo_name) body.append('google_photo_name', data.google_photo_name)
-  body.append('food_type_ids', JSON.stringify(data.food_type_ids ?? []))
   if (data.image) body.append('image', data.image)
   return body
 }

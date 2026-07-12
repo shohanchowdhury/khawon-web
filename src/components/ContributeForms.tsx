@@ -214,7 +214,6 @@ export default function ContributeForms({
         google_place_id: googlePlaceId.trim() || undefined,
         google_photo_name: selectedGooglePhotoName.trim() || undefined,
         image: restImage ?? undefined,
-        food_type_ids: selectedFoodIds,
       })
       onRestaurantCreated?.(created)
       setRestName('')

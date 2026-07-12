@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { getFoodDisplayImage } from '@/config/featuredFoods'
 import type { CarouselFood } from '@/types/domain/featuredFood'
 import FoodImage from '@/components/FoodImage'
-import FoodStageKeywordDrift from '@/components/FoodStageKeywordDrift'
 
 const SWIPE_THRESHOLD = 50
 const SLIDE_OFFSET = 48
@@ -32,13 +31,6 @@ function NavArrow({ direction }: NavArrowProps) {
 
 function getAccent(food: CarouselFood): string {
   return ('accent' in food && food.accent) ? food.accent : '#ef233c'
-}
-
-function getTasteTags(food: CarouselFood): string[] | null {
-  if ('taste_tags' in food && food.taste_tags?.length) {
-    return food.taste_tags
-  }
-  return null
 }
 
 interface StagePeekProps {
@@ -179,7 +171,6 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
   }
 
   const activeImageUrl = getFoodDisplayImage(active)
-  const tasteTags = getTasteTags(active)
 
   return (
     <section
@@ -187,15 +178,6 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
       style={{ '--home-accent': getAccent(active) }}
       aria-label="Featured foods"
     >
-      <AnimatePresence mode="wait">
-        {tasteTags ? (
-          <FoodStageKeywordDrift
-            key={`keywords-${active.id ?? active.name}`}
-            tags={tasteTags}
-          />
-        ) : null}
-      </AnimatePresence>
-
       <div
         className="food-stage__viewport"
         onTouchStart={onTouchStart}
