@@ -5,7 +5,6 @@ export default function LandingCta() {
     <div className="landing-cta">
       <NavButtonLink
         to="/foods"
-        state={{ foodStageIntro: true }}
         variant="primary"
         className="landing-cta__btn landing-cta__btn--primary"
       >

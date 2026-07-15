@@ -41,7 +41,7 @@ export default function SearchBar({ large = false, nav = false, defaultValue = '
     e.preventDefault()
     const trimmed = query.trim()
     if (!trimmed) return
-    navigate(`/search?q=${encodeURIComponent(trimmed)}`)
+    navigate(`/foods?q=${encodeURIComponent(trimmed)}`)
   }
 
   if (nav) {

@@ -77,10 +77,16 @@ function StagePeek({ food, side, direction, intro }: StagePeekProps) {
 interface FoodStageProps {
   foods: CarouselFood[]
   onAccentChange?: (accent: string) => void
+  onActiveFoodChange?: (food: CarouselFood) => void
   intro?: boolean
 }
 
-export default function FoodStage({ foods, onAccentChange, intro = false }: FoodStageProps) {
+export default function FoodStage({
+  foods,
+  onAccentChange,
+  onActiveFoodChange,
+  intro = false,
+}: FoodStageProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [direction, setDirection] = useState(0)
   const touchStartX = useRef<number | null>(null)
@@ -108,7 +114,8 @@ export default function FoodStage({ foods, onAccentChange, intro = false }: Food
   useEffect(() => {
     if (!active) return
     onAccentChange?.(getAccent(active))
-  }, [active, onAccentChange])
+    onActiveFoodChange?.(active)
+  }, [active, onAccentChange, onActiveFoodChange])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

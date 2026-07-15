@@ -8,6 +8,7 @@ export type {
   FoodTypeUpdatePayload,
   FoodTypePhotoUpdatePayload,
 } from './foodType'
+export type { FoodSubTypeOut, FoodSubTypeListResult } from './foodSubType'
 export type {
   RestaurantOut,
   RestaurantCreatePayload,

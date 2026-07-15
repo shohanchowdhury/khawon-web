@@ -6,7 +6,7 @@ import { useNavBarOverrides, type NavBarOverrides } from '@/context/NavBarContex
 function getRouteNavBarProps(pathname: string, search: string): NavBarOverrides & { showSearch: boolean } {
   const showSearch = pathname !== '/'
 
-  if (pathname === '/search') {
+  if (pathname === '/foods' || pathname === '/search') {
     const query = new URLSearchParams(search).get('q') || ''
     return { showSearch, searchDefaultValue: query }
   }

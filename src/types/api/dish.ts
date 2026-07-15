@@ -64,10 +64,19 @@ export interface CanonicalDishMatch extends CanonicalDishOut {
 export interface DishSearchResult {
   query: string
   canonical_matches: CanonicalDishMatch[]
+  total: number
+  offset: number
+  limit: number
   dishes: DishOut[]
 }
 
 export interface DishCompareResult {
   canonical_dish: CanonicalDishOut
   dishes: DishOut[]
+  total: number
+  offset: number
+  limit: number
+  average_rating: number | null
+  min_price_bdt: number | null
+  max_price_bdt: number | null
 }

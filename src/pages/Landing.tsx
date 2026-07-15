@@ -1,10 +1,7 @@
-import { useEffect, useState } from 'react'
-import { getTopFoodTypes, listFoodTypes } from '@/api/client'
-import { buildCarouselFoods, HOME_CAROUSEL_LIMIT } from '@/config/featuredFoods'
 import { LANDING_PATTERN } from '@/config/landingBackground'
+import { LANDING_POSTER_FOODS } from '@/config/landingPosterFoods'
 import { useAuth } from '@/context/AuthContext'
 import { useAuthModal } from '@/context/AuthModalContext'
-import type { CarouselFood } from '@/types/domain/featuredFood'
 import LandingCta from '@/components/LandingCta'
 import LandingShowcase from '@/components/LandingShowcase'
 import { useLandingPatternDrift } from '@/hooks/useLandingPatternDrift'
@@ -12,16 +9,7 @@ import { useLandingPatternDrift } from '@/hooks/useLandingPatternDrift'
 export default function Landing() {
   const { isAuthenticated } = useAuth()
   const { openAuthModal } = useAuthModal()
-  const [showcaseFoods, setShowcaseFoods] = useState<CarouselFood[]>([])
   const patternRef = useLandingPatternDrift()
-
-  useEffect(() => {
-    Promise.all([listFoodTypes(), getTopFoodTypes(12)])
-      .then(([allFoods, topList]) => {
-        setShowcaseFoods(buildCarouselFoods(allFoods, topList).slice(0, HOME_CAROUSEL_LIMIT))
-      })
-      .catch(() => setShowcaseFoods([]))
-  }, [])
 
   return (
     <div className="landing-page">
@@ -64,7 +52,7 @@ export default function Landing() {
           )}
         </div>
 
-        <LandingShowcase foods={showcaseFoods} />
+        <LandingShowcase posters={LANDING_POSTER_FOODS} />
       </main>
     </div>
   )

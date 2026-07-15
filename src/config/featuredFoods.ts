@@ -7,28 +7,34 @@ export const HOME_CAROUSEL_EXCLUDE = ['Beef Tehari'] as const
 
 export const POSTER_FOODS = [
   {
-    name: 'Ramen',
-    fallbackImage: '/featured/ramen.webp',
-    accent: '#ef233c',
-    slug: 'ramen',
-  },
-  {
-    name: 'Biriyani',
-    fallbackImage: '/featured/biriyani.webp',
-    accent: '#d80032',
-    slug: 'biriyani',
-  },
-  {
     name: 'Fuchka',
     fallbackImage: '/featured/fuchka.webp',
     accent: '#ef233c',
     slug: 'fuchka',
   },
   {
+    name: 'Ramen',
+    fallbackImage: '/featured/ramen.webp',
+    accent: '#ef233c',
+    slug: 'ramen',
+  },
+  {
+    name: 'Burger',
+    fallbackImage: '/featured/burger.webp',
+    accent: '#d80032',
+    slug: 'burger',
+  },
+  {
     name: 'Pizza',
     fallbackImage: '/featured/pizza.webp',
     accent: '#d80032',
     slug: 'pizza',
+  },
+  {
+    name: 'Biriyani',
+    fallbackImage: '/featured/biriyani.webp',
+    accent: '#ef233c',
+    slug: 'biriyani',
   },
 ] as const satisfies readonly PosterFoodConfig[]
 

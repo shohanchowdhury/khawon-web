@@ -41,7 +41,7 @@ export default function FoodDetail() {
   }, [id])
 
   const backHref = searchQuery
-    ? `/search?q=${encodeURIComponent(searchQuery)}`
+      ? `/foods?q=${encodeURIComponent(searchQuery)}`
     : '/foods'
   const backLabel = searchQuery ? '← Back to search results' : '← Back to foods'
   const navBackAriaLabel = searchQuery ? 'Back to search results' : 'Back to foods'

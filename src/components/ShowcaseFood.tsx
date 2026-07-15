@@ -1,44 +1,26 @@
 import type { CSSProperties } from 'react'
-import type { CarouselFood } from '@/types/domain/featuredFood'
-import { getFoodDisplayImage } from '@/config/featuredFoods'
-import FoodImage from '@/components/FoodImage'
-
-export function getShowcaseAccent(food: CarouselFood): string {
-  return 'accent' in food && food.accent ? food.accent : '#ef233c'
-}
+import type { LandingPosterFood } from '@/config/landingPosterFoods'
 
 interface ShowcaseFoodProps {
-  food: CarouselFood
+  poster: LandingPosterFood
   priority?: boolean
   className?: string
 }
 
 export default function ShowcaseFood({
-  food,
+  poster,
   priority,
   className = 'landing-showcase__food',
 }: ShowcaseFoodProps) {
-  const imageUrl = getFoodDisplayImage(food)
-  const style = { '--showcase-accent': getShowcaseAccent(food) } as CSSProperties
-
-  if (imageUrl) {
-    return (
-      <img
-        src={imageUrl}
-        alt=""
-        className={className}
-        style={style}
-        loading={priority ? 'eager' : 'lazy'}
-      />
-    )
-  }
+  const style = { '--showcase-accent': poster.accent } as CSSProperties
 
   return (
-    <FoodImage
-      name={food.name}
+    <img
+      src={poster.image}
+      alt=""
       className={className}
       style={style}
-      priority={priority}
+      loading={priority ? 'eager' : 'lazy'}
     />
   )
 }

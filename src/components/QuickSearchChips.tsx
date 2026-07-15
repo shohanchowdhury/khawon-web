@@ -10,7 +10,7 @@ export default function QuickSearchChips() {
         return (
           <Link
             key={food.name}
-            to={`/search?${params.toString()}`}
+            to={`/foods?${params.toString()}`}
             className="quick-chips__pill"
             style={{ '--chip-accent': food.accent }}
           >

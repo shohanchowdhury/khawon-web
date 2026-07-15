@@ -18,6 +18,7 @@ import type {
   DishOut,
   DishSearchResult,
   DishCompareResult,
+  FoodSubTypeListResult,
 } from '@/types/api'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -102,12 +103,27 @@ export async function requestVoid(path: string, options: RequestInit = {}): Prom
   }
 }
 
-export function searchDishes(query: string): Promise<DishSearchResult> {
-  return request(`/dishes/search?q=${encodeURIComponent(query)}`)
+export function searchDishes(
+  query: string,
+  options: { offset?: number; limit?: number } = {},
+): Promise<DishSearchResult> {
+  const params = new URLSearchParams({ q: query })
+  if (options.offset != null) params.set('offset', String(options.offset))
+  if (options.limit != null) params.set('limit', String(options.limit))
+  return request(`/dishes/search?${params.toString()}`)
 }
 
-export function compareDish(canonicalDishId: number | string): Promise<DishCompareResult> {
-  return request(`/dishes/compare/${canonicalDishId}`)
+export function compareDish(
+  canonicalDishId: number | string,
+  options: { offset?: number; limit?: number } = {},
+): Promise<DishCompareResult> {
+  const params = new URLSearchParams()
+  if (options.offset != null) params.set('offset', String(options.offset))
+  if (options.limit != null) params.set('limit', String(options.limit))
+  const query = params.toString()
+  return request(
+    `/dishes/compare/${canonicalDishId}${query ? `?${query}` : ''}`,
+  )
 }
 
 export function getDish(id: number | string): Promise<DishOut> {
@@ -151,6 +167,12 @@ export function getFoodType(id: number | string): Promise<FoodTypeOut> {
 
 export function getFoodDetail(id: number | string): Promise<FoodDetailResult> {
   return request(`/food-types/${id}/detail`)
+}
+
+export function getFoodSubTypes(
+  foodTypeId: number | string,
+): Promise<FoodSubTypeListResult> {
+  return request(`/food-types/${foodTypeId}/sub-types`)
 }
 
 export function getFoodCatalogue(query = ''): Promise<FoodTypePopularOut[]> {

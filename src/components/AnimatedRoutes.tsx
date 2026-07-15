@@ -5,6 +5,7 @@ import { NavBarProvider } from '@/context/NavBarContext'
 import Landing from '@/pages/Landing'
 import FoodDetail from '@/pages/FoodDetail'
 import Foods from '@/pages/Foods'
+import DishCompare from '@/pages/DishCompare'
 import SearchResults from '@/pages/SearchResults'
 import RestaurantDetail from '@/pages/RestaurantDetail'
 import Login from '@/pages/Login'
@@ -44,6 +45,7 @@ export default function AnimatedRoutes() {
                 <Route path="/food/:id" element={<FoodDetail />} />
                 <Route path="/catalogue" element={<Navigate to="/foods" replace />} />
                 <Route path="/restaurants" element={<RestaurantCatalogue />} />
+                <Route path="/dishes/compare/:canonicalDishId" element={<DishCompare />} />
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/restaurant/:id" element={<RestaurantDetail />} />
                 <Route path="/login" element={<Login />} />

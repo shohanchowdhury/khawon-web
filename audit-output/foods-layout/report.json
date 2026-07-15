@@ -1,0 +1,151 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "generatedAt": "2026-07-15T01:30:31.371Z",
+  "states": [
+    {
+      "state": "home",
+      "metrics": {
+        "sidebar": {
+          "x": 0,
+          "y": 76,
+          "width": 280,
+          "height": 824
+        },
+        "header": {
+          "x": 0,
+          "y": 108,
+          "width": 279,
+          "height": 167
+        },
+        "nav": {
+          "x": 0,
+          "y": 291,
+          "width": 279,
+          "height": 577
+        },
+        "split": {
+          "x": 0,
+          "y": 76,
+          "width": 1440,
+          "height": 824
+        },
+        "navScrollHeight": 1995,
+        "navClientHeight": 577,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "navScrolls": true
+      },
+      "checks": [
+        {
+          "name": "split_height_bounded",
+          "pass": true,
+          "detail": "split height 824px (max ~864px)"
+        },
+        {
+          "name": "sidebar_height_bounded",
+          "pass": true,
+          "detail": "sidebar height 824px (max ~864px)"
+        },
+        {
+          "name": "nav_scrollable",
+          "pass": true,
+          "detail": "nav scrollHeight 1995, clientHeight 577, scrolled 0→400"
+        },
+        {
+          "name": "sidebar_full_bleed",
+          "pass": true,
+          "detail": "sidebar 280px @0, header 279px @0, nav 279px @0"
+        },
+        {
+          "name": "nav_item_width_alignment",
+          "pass": true,
+          "detail": "All dishes 269px vs first category 269px"
+        },
+        {
+          "name": "no_horizontal_overflow",
+          "pass": true,
+          "detail": "scrollWidth 1440px, clientWidth 1440px"
+        },
+        {
+          "name": "main_column_present",
+          "pass": true,
+          "detail": "main 1160px, sidebar 280px"
+        }
+      ]
+    },
+    {
+      "state": "browse-curry",
+      "metrics": {
+        "sidebar": {
+          "x": 0,
+          "y": 76,
+          "width": 280,
+          "height": 824
+        },
+        "header": {
+          "x": 0,
+          "y": 108,
+          "width": 279,
+          "height": 167
+        },
+        "nav": {
+          "x": 0,
+          "y": 291,
+          "width": 279,
+          "height": 577
+        },
+        "split": {
+          "x": 0,
+          "y": 76,
+          "width": 1440,
+          "height": 824
+        },
+        "navScrollHeight": 2051,
+        "navClientHeight": 577,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "navScrolls": true
+      },
+      "checks": [
+        {
+          "name": "split_height_bounded",
+          "pass": true,
+          "detail": "split height 824px (max ~864px)"
+        },
+        {
+          "name": "sidebar_height_bounded",
+          "pass": true,
+          "detail": "sidebar height 824px (max ~864px)"
+        },
+        {
+          "name": "nav_scrollable",
+          "pass": true,
+          "detail": "nav scrollHeight 2051, clientHeight 577, scrolled 0→400"
+        },
+        {
+          "name": "sidebar_full_bleed",
+          "pass": true,
+          "detail": "sidebar 280px @0, header 279px @0, nav 279px @0"
+        },
+        {
+          "name": "nav_item_width_alignment",
+          "pass": true,
+          "detail": "All dishes 269px vs first category 269px"
+        },
+        {
+          "name": "no_horizontal_overflow",
+          "pass": true,
+          "detail": "scrollWidth 1440px, clientWidth 1440px"
+        },
+        {
+          "name": "main_column_present",
+          "pass": true,
+          "detail": "main 1160px, sidebar 280px"
+        }
+      ]
+    }
+  ]
+}
