@@ -5,12 +5,14 @@ import { useFoodsBrowseData } from '@/hooks/useFoodsBrowseData'
 export default function Foods() {
   const [searchParams] = useSearchParams()
   const searchQuery = searchParams.get('q') ?? ''
+  const initialCategory = searchParams.get('category')
   const browseData = useFoodsBrowseData(searchQuery)
 
   return (
     <FoodsSplitLayout
       searchQuery={searchQuery}
       browseData={browseData}
+      initialCategory={initialCategory}
     />
   )
 }

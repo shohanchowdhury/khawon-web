@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { compareDish } from '@/api/client'
 import type { DishOut } from '@/types/api'
@@ -6,6 +6,7 @@ import DishCompareRow from '@/components/DishCompareRow'
 import PageScroll from '@/components/PageScroll'
 import PaginationControls from '@/components/PaginationControls'
 import StarRating from '@/components/StarRating'
+import { resolveCompareCardImages } from '@/utils/productImageUrl'
 
 const COMPARE_PAGE_SIZE = 20
 
@@ -23,6 +24,7 @@ export default function DishCompare() {
   const [dishes, setDishes] = useState<DishOut[]>([])
   const [dishName, setDishName] = useState('')
   const [foodTypeName, setFoodTypeName] = useState<string | null>(null)
+  const [foodTypeId, setFoodTypeId] = useState<number | null>(null)
   const [averageRating, setAverageRating] = useState<number | null>(null)
   const [priceMin, setPriceMin] = useState<number | null>(null)
   const [priceMax, setPriceMax] = useState<number | null>(null)
@@ -52,6 +54,7 @@ export default function DishCompare() {
       .then((result) => {
         setDishName(result.canonical_dish.name)
         setFoodTypeName(result.canonical_dish.food_type?.name ?? null)
+        setFoodTypeId(result.canonical_dish.food_type?.id ?? null)
         setDishes(result.dishes)
         setTotalRestaurants(result.total)
         setAverageRating(result.average_rating)
@@ -67,14 +70,22 @@ export default function DishCompare() {
   }, [canonicalDishId, page])
 
   const priceRange = formatPriceRange(priceMin, priceMax)
+  const foodsBackHref = foodTypeName
+    ? `/foods?category=${encodeURIComponent(foodTypeName)}`
+    : '/foods'
+
+  const compareCardImages = useMemo(() => {
+    const seenProductUrls = new Set<string>()
+    return dishes.map((dish) => resolveCompareCardImages(dish, seenProductUrls))
+  }, [dishes])
 
   return (
     <div className="page dish-compare-page">
       <PageScroll>
         <main className="page-content">
           <p className="dish-compare-page__back">
-            <Link to="/foods" className="back-link">
-              ← Back to foods
+            <Link to={foodsBackHref} className="back-link">
+              {foodTypeName ? `← Back to ${foodTypeName}` : '← Back to foods'}
             </Link>
           </p>
 
@@ -107,8 +118,16 @@ export default function DishCompare() {
               ) : (
                 <>
                   <ul className="dish-compare-list">
-                    {dishes.map((dish) => (
-                      <DishCompareRow key={dish.id} dish={dish} />
+                    {dishes.map((dish, index) => (
+                      <DishCompareRow
+                        key={dish.id}
+                        dish={dish}
+                        priority={index < 4}
+                        foodTypeId={foodTypeId}
+                        category={foodTypeName}
+                        imageUrl={compareCardImages[index]?.imageUrl}
+                        fallbackUrl={compareCardImages[index]?.fallbackUrl}
+                      />
                     ))}
                   </ul>
                   <PaginationControls

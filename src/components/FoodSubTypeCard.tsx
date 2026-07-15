@@ -1,5 +1,7 @@
+import { useMemo } from 'react'
 import type { FoodSubTypeOut } from '@/types/api'
-import CyclingDishImage from '@/components/CyclingDishImage'
+import FoodImage from '@/components/FoodImage'
+import { pickRandomImageUrl } from '@/utils/pickRandomImage'
 
 interface FoodSubTypeCardProps {
   subType: FoodSubTypeOut
@@ -12,6 +14,11 @@ export default function FoodSubTypeCard({
   active = false,
   onSelect,
 }: FoodSubTypeCardProps) {
+  const imageUrl = useMemo(
+    () => pickRandomImageUrl(subType.image_urls),
+    [subType.id, subType.image_urls.join('|')],
+  )
+
   return (
     <button
       type="button"
@@ -23,10 +30,10 @@ export default function FoodSubTypeCard({
       onClick={onSelect}
       aria-pressed={active}
     >
-      <CyclingDishImage
-        imageUrls={subType.image_urls}
-        alt={subType.name}
-        imageClassName="food-subtype-card__image"
+      <FoodImage
+        name={subType.name}
+        imageUrl={imageUrl}
+        className="food-subtype-card__image"
       />
       <span className="food-subtype-card__body">
         <span className="food-subtype-card__name">{subType.name}</span>

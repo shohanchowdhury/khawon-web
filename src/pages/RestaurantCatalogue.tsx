@@ -3,12 +3,17 @@ import { Link } from 'react-router-dom'
 import { getRestaurantCatalogue } from '@/api/client'
 import type { RestaurantOut } from '@/types/api'
 import PageScroll from '@/components/PageScroll'
+import PaginationControls from '@/components/PaginationControls'
 import RestaurantCard from '@/components/RestaurantCard'
+
+const CATALOGUE_PAGE_SIZE = 24
 
 export default function RestaurantCatalogue() {
   const [query, setQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
+  const [page, setPage] = useState(0)
   const [restaurants, setRestaurants] = useState<RestaurantOut[]>([])
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -18,13 +23,23 @@ export default function RestaurantCatalogue() {
   }, [query])
 
   useEffect(() => {
+    setPage(0)
+  }, [debouncedQuery])
+
+  useEffect(() => {
     setLoading(true)
     setError('')
-    getRestaurantCatalogue(debouncedQuery)
-      .then(setRestaurants)
+    getRestaurantCatalogue(debouncedQuery, {
+      offset: page * CATALOGUE_PAGE_SIZE,
+      limit: CATALOGUE_PAGE_SIZE,
+    })
+      .then((result) => {
+        setRestaurants(result.restaurants)
+        setTotal(result.total)
+      })
       .catch((err) => setError(err instanceof Error ? err.message : String(err)))
       .finally(() => setLoading(false))
-  }, [debouncedQuery])
+  }, [debouncedQuery, page])
 
   return (
     <div className="page">
@@ -56,7 +71,7 @@ export default function RestaurantCatalogue() {
 
         {!loading && !error && (
           <p className="catalogue-count muted">
-            {restaurants.length} restaurant{restaurants.length !== 1 ? 's' : ''}
+            {total} restaurant{total !== 1 ? 's' : ''}
             {debouncedQuery.trim() ? ` matching "${debouncedQuery.trim()}"` : ''}
           </p>
         )}
@@ -64,7 +79,7 @@ export default function RestaurantCatalogue() {
         {loading && <p className="loading">Loading restaurants...</p>}
         {error && <div className="error-box"><p>{error}</p></div>}
 
-        {!loading && !error && restaurants.length === 0 && (
+        {!loading && !error && total === 0 && (
           <p className="empty">
             {query.trim()
               ? `No restaurants match "${query.trim()}".`
@@ -73,15 +88,25 @@ export default function RestaurantCatalogue() {
         )}
 
         {!loading && restaurants.length > 0 && (
-          <div className="restaurant-grid catalogue-restaurant-grid">
-            {restaurants.map((restaurant) => (
-              <RestaurantCard
-                key={restaurant.id}
-                restaurant={restaurant}
-                showFoodTypes
-              />
-            ))}
-          </div>
+          <>
+            <div className="restaurant-grid catalogue-restaurant-grid">
+              {restaurants.map((restaurant) => (
+                <RestaurantCard
+                  key={restaurant.id}
+                  restaurant={restaurant}
+                  showFoodTypes
+                />
+              ))}
+            </div>
+
+            <PaginationControls
+              page={page}
+              pageSize={CATALOGUE_PAGE_SIZE}
+              total={total}
+              onPageChange={setPage}
+              loading={loading}
+            />
+          </>
         )}
       </main>
       </PageScroll>

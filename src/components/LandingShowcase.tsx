@@ -1,9 +1,11 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
+import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { LandingPosterFood } from '@/config/landingPosterFoods'
 import ShowcaseFood from '@/components/ShowcaseFood'
 
 const CAROUSEL_INTERVAL_MS = 4500
+const AUTO_RESUME_MS = 10000
 const SLOT_TRANSITION = { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const }
 
 interface LandingShowcaseProps {
@@ -12,32 +14,74 @@ interface LandingShowcaseProps {
 
 export default function LandingShowcase({ posters }: LandingShowcaseProps) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const [autoPaused, setAutoPaused] = useState(false)
+  const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const pauseAutoAdvance = useCallback(() => {
+    setAutoPaused(true)
+    if (resumeTimerRef.current) {
+      window.clearTimeout(resumeTimerRef.current)
+    }
+    resumeTimerRef.current = window.setTimeout(() => {
+      setAutoPaused(false)
+      resumeTimerRef.current = null
+    }, AUTO_RESUME_MS)
+  }, [])
 
   useEffect(() => {
     setActiveIndex(0)
   }, [posters])
 
   useEffect(() => {
-    if (posters.length <= 1) return undefined
+    return () => {
+      if (resumeTimerRef.current) {
+        window.clearTimeout(resumeTimerRef.current)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (posters.length <= 1 || autoPaused) return undefined
     const timer = window.setInterval(() => {
       setActiveIndex((current) => (current + 1) % posters.length)
     }, CAROUSEL_INTERVAL_MS)
     return () => window.clearInterval(timer)
-  }, [posters.length])
+  }, [posters.length, autoPaused])
+
+  const goToIndex = useCallback(
+    (index: number) => {
+      if (posters.length === 0) return
+      pauseAutoAdvance()
+      setActiveIndex(((index % posters.length) + posters.length) % posters.length)
+    },
+    [pauseAutoAdvance, posters.length],
+  )
+
+  function goPrev() {
+    goToIndex(activeIndex - 1)
+  }
+
+  function goNext() {
+    goToIndex(activeIndex + 1)
+  }
 
   const activePoster = posters[activeIndex]
 
+  if (posters.length === 0) {
+    return null
+  }
+
   return (
-    <div
+    <section
       className="landing-showcase"
-      aria-hidden="true"
+      aria-label="Featured food categories"
       style={
         activePoster
           ? ({ '--showcase-active-accent': activePoster.accent } as CSSProperties)
           : undefined
       }
     >
-      <div className="landing-showcase__glow" />
+      <div className="landing-showcase__glow" aria-hidden="true" />
       <div className="landing-showcase__stage">
         <div className="landing-showcase__slot landing-showcase__slot--hero">
           {activePoster ? (
@@ -50,12 +94,39 @@ export default function LandingShowcase({ posters }: LandingShowcaseProps) {
                 exit={{ opacity: 0, scale: 1.04 }}
                 transition={SLOT_TRANSITION}
               >
-                <ShowcaseFood poster={activePoster} priority />
+                <Link
+                  to={`/foods?category=${encodeURIComponent(activePoster.name)}`}
+                  className="landing-showcase__link"
+                  aria-label={`Browse ${activePoster.name}`}
+                >
+                  <ShowcaseFood poster={activePoster} priority />
+                </Link>
               </motion.div>
             </AnimatePresence>
           ) : null}
         </div>
       </div>
-    </div>
+
+      {posters.length > 1 && (
+        <>
+          <button
+            type="button"
+            className="landing-showcase__nav landing-showcase__nav--prev"
+            onClick={goPrev}
+            aria-label="Previous food category"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            className="landing-showcase__nav landing-showcase__nav--next"
+            onClick={goNext}
+            aria-label="Next food category"
+          >
+            ›
+          </button>
+        </>
+      )}
+    </section>
   )
 }

@@ -77,6 +77,7 @@ export default function CyclingDishImage({
           exit={{ opacity: 0 }}
           transition={FADE_TRANSITION}
           loading="lazy"
+          referrerPolicy="no-referrer"
         />
       </AnimatePresence>
     </div>

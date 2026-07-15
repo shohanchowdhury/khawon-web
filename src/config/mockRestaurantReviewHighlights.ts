@@ -1,4 +1,5 @@
 import type { RestaurantOut } from '@/types/api'
+import { getRestaurantDisplayRating } from '@/utils/restaurantDisplay'
 
 export interface RestaurantReviewHighlight {
   quote: string
@@ -22,23 +23,24 @@ export function getMockReviewHighlight(
   restaurant: RestaurantOut,
   foodName: string,
 ): RestaurantReviewHighlight {
+  const display = getRestaurantDisplayRating(restaurant)
   const overrideQuote = MOCK_QUOTES_BY_RESTAURANT_ID[restaurant.id]
 
   if (overrideQuote) {
     return {
       quote: overrideQuote,
-      average_rating: restaurant.average_rating,
-      review_count: restaurant.review_count,
+      average_rating: display.rating,
+      review_count: display.reviewCount,
     }
   }
 
-  if (restaurant.review_count > 0) {
+  if (display.reviewCount > 0) {
     const quoteIndex = restaurant.id % FALLBACK_QUOTES_WITH_REVIEWS.length
     const quote = FALLBACK_QUOTES_WITH_REVIEWS.at(quoteIndex) ?? 'Well liked locally.'
     return {
       quote,
-      average_rating: restaurant.average_rating,
-      review_count: restaurant.review_count,
+      average_rating: display.rating,
+      review_count: display.reviewCount,
     }
   }
 

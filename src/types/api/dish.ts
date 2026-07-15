@@ -17,6 +17,8 @@ export interface FlavorTagOut {
   name: string
 }
 
+import type { RestaurantRatingSource } from './restaurant'
+
 export interface RestaurantSummaryOut {
   id: number
   name: string
@@ -24,6 +26,8 @@ export interface RestaurantSummaryOut {
   address: string | null
   image_url: string | null
   google_place_id: string | null
+  display_rating: number | null
+  display_rating_source: RestaurantRatingSource
 }
 
 export interface DishOut {

@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import FoodCategoryNavItem from '@/components/FoodCategoryNavItem'
 import type { FoodTypePopularOut } from '@/types/api'
 import { partitionSidebarCategories } from '@/utils/foodsSidebarCategories'
@@ -22,20 +21,12 @@ export default function FoodsCategorySidebar({
     categories,
     selectedCategory,
   )
+  const listCategories = selected ? rest : categories
 
   return (
     <aside className="foods-layout__split-sidebar">
       <div className="foods-sidebar__header">
-        <div className="catalogue-header">
-          <div>
-            <h1>Foods</h1>
-            <p className="muted">Browse by category</p>
-          </div>
-        </div>
-
-        <p className="catalogue-crosslink muted">
-          <Link to="/restaurants">Restaurants →</Link>
-        </p>
+        <h1>Foods</h1>
       </div>
 
       {categoriesLoading && <p className="loading">Loading...</p>}
@@ -45,53 +36,45 @@ export default function FoodsCategorySidebar({
         </div>
       )}
 
-      <nav
-        className="foods-layout__split-nav khawon-scrollbar"
-        aria-label="Food categories"
-      >
+      <nav className="foods-layout__split-nav" aria-label="Food categories">
         <div className="foods-layout__split-nav-primary">
-          <button
-            type="button"
-            className={
-              selectedCategory === null
-                ? 'foods-layout__split-nav-item foods-layout__split-nav-item--active'
-                : 'foods-layout__split-nav-item'
-            }
-            onClick={() => onSelectCategory(null)}
-          >
-            All dishes
-          </button>
-
-          {selected && (
-            <div className="foods-layout__split-nav-pinned">
-              <FoodCategoryNavItem
-                name={selected.name}
-                restaurantCount={selected.restaurant_count}
-                active
-                pinned
-                onSelect={() => onSelectCategory(selected.name)}
+          {selected ? (
+            <FoodCategoryNavItem
+              name={selected.name}
+              restaurantCount={selected.restaurant_count}
+              active
+              onSelect={() => onSelectCategory(selected.name)}
+              onClear={() => onSelectCategory(null)}
+            />
+          ) : (
+            <button
+              type="button"
+              className="foods-category-nav-item foods-category-nav-item--active"
+              onClick={() => onSelectCategory(null)}
+            >
+              <span
+                className="foods-category-nav-item__thumb foods-category-nav-item__thumb--empty"
+                aria-hidden="true"
               />
-            </div>
+              <span className="foods-category-nav-item__copy">
+                <span className="foods-category-nav-item__name">All dishes</span>
+              </span>
+            </button>
           )}
         </div>
 
-        {rest.length > 0 && (
-          <>
-            {selected && (
-              <p className="foods-layout__split-nav-label muted">All categories</p>
-            )}
-            <div className="foods-layout__split-nav-list">
-              {rest.map((category) => (
-                <FoodCategoryNavItem
-                  key={category.id}
-                  name={category.name}
-                  restaurantCount={category.restaurant_count}
-                  active={false}
-                  onSelect={() => onSelectCategory(category.name)}
-                />
-              ))}
-            </div>
-          </>
+        {listCategories.length > 0 && (
+          <div className="foods-layout__split-nav-list khawon-scrollbar">
+            {listCategories.map((category) => (
+              <FoodCategoryNavItem
+                key={category.id}
+                name={category.name}
+                restaurantCount={category.restaurant_count}
+                active={false}
+                onSelect={() => onSelectCategory(category.name)}
+              />
+            ))}
+          </div>
         )}
       </nav>
     </aside>

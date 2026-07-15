@@ -13,8 +13,15 @@ export type {
   RestaurantOut,
   RestaurantCreatePayload,
   RestaurantPhotoUpdatePayload,
+  RestaurantCatalogueResult,
+  RestaurantRatingSource,
 } from './restaurant'
-export type { ReviewCreate, ReviewOut } from './review'
+export type { ReviewCreate, ReviewOut, ReviewListResult } from './review'
+export type {
+  RestaurantReviewCreate,
+  RestaurantReviewOut,
+  RestaurantReviewListResult,
+} from './restaurantReview'
 export type {
   DishOut,
   DishVariationOut,

@@ -1,36 +1,26 @@
-import { requireFoodTypePoster } from '@/config/foodTypePosters'
+import { POSTER_FOODS } from '@/config/featuredFoods'
+import { listFoodTypePosters } from '@/config/foodTypePosters'
+
+const DEFAULT_ACCENT = '#ef233c'
+
+const ACCENT_BY_SLUG = Object.fromEntries(
+  POSTER_FOODS.map((food) => [food.slug, food.accent]),
+) as Record<string, string>
 
 export interface LandingPosterFood {
   id: string
+  slug: string
+  name: string
   image: string
   accent: string
 }
 
-/** Landing hero carousel — uses shared food-type-posters assets. */
-export const LANDING_POSTER_FOODS = [
-  {
-    id: 'fuchka',
-    image: requireFoodTypePoster('Fuchka'),
-    accent: '#ef233c',
-  },
-  {
-    id: 'ramen',
-    image: requireFoodTypePoster('Ramen'),
-    accent: '#ef233c',
-  },
-  {
-    id: 'burger',
-    image: requireFoodTypePoster('Burger'),
-    accent: '#d80032',
-  },
-  {
-    id: 'pizza',
-    image: requireFoodTypePoster('Pizza'),
-    accent: '#d80032',
-  },
-  {
-    id: 'biriyani',
-    image: requireFoodTypePoster('Biriyani'),
-    accent: '#ef233c',
-  },
-] as const satisfies readonly LandingPosterFood[]
+export function buildLandingPosters(): LandingPosterFood[] {
+  return listFoodTypePosters().map((poster) => ({
+    id: poster.slug,
+    slug: poster.slug,
+    name: poster.name,
+    image: poster.image,
+    accent: ACCENT_BY_SLUG[poster.slug] ?? DEFAULT_ACCENT,
+  }))
+}

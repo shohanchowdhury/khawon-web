@@ -17,6 +17,10 @@ export function slugifyCategory(label: string): string {
   return slug || 'other'
 }
 
+export function dishCategorySlug(dish: DishOut): string {
+  return slugifyCategory(dish.category_raw?.trim() || FALLBACK_CATEGORY)
+}
+
 export function groupDishesByCategory(dishes: DishOut[]): DishCategoryGroup[] {
   const byCategory = new Map<string, DishOut[]>()
 

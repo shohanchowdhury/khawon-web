@@ -17,10 +17,11 @@ export default function ShowcaseFood({
   return (
     <img
       src={poster.image}
-      alt=""
+      alt={poster.name}
       className={className}
       style={style}
       loading={priority ? 'eager' : 'lazy'}
+      fetchPriority={priority ? 'high' : 'auto'}
     />
   )
 }

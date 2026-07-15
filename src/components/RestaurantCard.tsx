@@ -3,6 +3,7 @@ import type { RestaurantOut } from '@/types/api'
 import FoodImage from '@/components/FoodImage'
 import StarRating from '@/components/StarRating'
 import { buildRestaurantLink } from '@/utils/restaurantLink'
+import { getRestaurantDisplayRating } from '@/utils/restaurantDisplay'
 
 interface RestaurantCardProps {
   restaurant: RestaurantOut
@@ -19,6 +20,8 @@ export default function RestaurantCard({
   showFoodTypes = false,
   showImage = true,
 }: RestaurantCardProps) {
+  const display = getRestaurantDisplayRating(restaurant)
+
   return (
     <Link
       to={buildRestaurantLink(restaurant.id, { foodTypeId, searchQuery })}
@@ -28,6 +31,7 @@ export default function RestaurantCard({
         <FoodImage
           name={restaurant.name}
           imageUrl={restaurant.image_url}
+          fallbackUrl={restaurant.logo_url}
           className="restaurant-card__image"
         />
       )}
@@ -37,9 +41,12 @@ export default function RestaurantCard({
           {restaurant.area && <span className="badge">{restaurant.area}</span>}
         </div>
         <div className="restaurant-card__meta">
-          <StarRating rating={restaurant.average_rating} />
+          <StarRating rating={display.rating} />
           <span className="review-count">
-            {restaurant.review_count} review{restaurant.review_count !== 1 ? 's' : ''}
+            {display.reviewCount} review{display.reviewCount !== 1 ? 's' : ''}
+            {display.source === 'foodpanda' && (
+              <span className="muted"> (Foodpanda)</span>
+            )}
           </span>
         </div>
         {showFoodTypes && restaurant.food_types.length > 0 && (

@@ -9,6 +9,8 @@ import FoodRestaurantSection from '@/components/FoodRestaurantSection'
 import PageScroll from '@/components/PageScroll'
 import useScrolledPast from '@/hooks/useScrolledPast'
 
+const SLOW_LOAD_MS = 8000
+
 export default function FoodDetail() {
   const { id } = useParams<{ id: string }>()
   const location = useLocation()
@@ -23,21 +25,55 @@ export default function FoodDetail() {
 
   const [detail, setDetail] = useState<FoodDetailResult | null>(null)
   const [loading, setLoading] = useState(true)
+  const [slowLoading, setSlowLoading] = useState(false)
   const [error, setError] = useState('')
 
   const backInNav = useScrolledPast(backAnchor)
   const titleInNav = useScrolledPast(titleAnchor)
 
   useEffect(() => {
-    if (!id) return
+    if (!id) {
+      setLoading(false)
+      setSlowLoading(false)
+      setError('Missing food id.')
+      return
+    }
+
+    let cancelled = false
+    const slowTimer = window.setTimeout(() => {
+      if (!cancelled) {
+        setSlowLoading(true)
+      }
+    }, SLOW_LOAD_MS)
 
     setLoading(true)
+    setSlowLoading(false)
     setError('')
+    setDetail(null)
 
     getFoodDetail(id)
-      .then(setDetail)
-      .catch((err) => setError(err instanceof Error ? err.message : String(err)))
-      .finally(() => setLoading(false))
+      .then((data) => {
+        if (!cancelled) {
+          setDetail(data)
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : String(err))
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false)
+          setSlowLoading(false)
+        }
+        window.clearTimeout(slowTimer)
+      })
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(slowTimer)
+    }
   }, [id])
 
   const backHref = searchQuery
@@ -76,6 +112,9 @@ export default function FoodDetail() {
                   {backLabel}
                 </Link>
                 <p className="loading">Loading...</p>
+                {slowLoading && (
+                  <p className="muted">Still loading restaurants for this food type...</p>
+                )}
               </>
             )}
 

@@ -41,10 +41,6 @@ export default function FoodsHomePanel({
           />
         ))}
       </div>
-
-      <p className="muted foods-home__hint">
-        Pick a category or search from the nav bar to browse comparable dishes.
-      </p>
     </div>
   )
 }

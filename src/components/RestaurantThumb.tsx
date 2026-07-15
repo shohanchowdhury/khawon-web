@@ -3,6 +3,7 @@ import FoodImage from '@/components/FoodImage'
 interface RestaurantThumbProps {
   name: string
   imageUrl?: string | null
+  fallbackUrl?: string | null
   size?: 'sm' | 'md'
   className?: string
 }
@@ -10,6 +11,7 @@ interface RestaurantThumbProps {
 export default function RestaurantThumb({
   name,
   imageUrl,
+  fallbackUrl,
   size = 'sm',
   className,
 }: RestaurantThumbProps) {
@@ -26,6 +28,7 @@ export default function RestaurantThumb({
       <FoodImage
         name={name}
         imageUrl={imageUrl}
+        fallbackUrl={fallbackUrl}
         className="restaurant-thumb__image"
       />
     </div>

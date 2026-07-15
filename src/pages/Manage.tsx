@@ -3,7 +3,7 @@ import { Link, Navigate, useLocation } from 'react-router-dom'
 import {
   getFoodCatalogue,
   getPlaceDetails,
-  getRestaurantCatalogue,
+  listRestaurants,
   listFoodTypes,
   searchFoodImages,
   searchPlaces,
@@ -259,7 +259,7 @@ export default function Manage() {
   const [restaurantPhotoEditorId, setRestaurantPhotoEditorId] = useState<number | null>(null)
 
   useEffect(() => {
-    Promise.all([getFoodCatalogue(), getRestaurantCatalogue(), listFoodTypes()])
+    Promise.all([getFoodCatalogue(), listRestaurants(), listFoodTypes()])
       .then(([foodList, restaurantList, typeList]) => {
         setFoods(foodList)
         setRestaurants(restaurantList)
@@ -313,7 +313,6 @@ export default function Manage() {
         <section className="manage-section">
           <h2>Add new</h2>
           <ContributeForms
-            foodTypes={foodTypes}
             onFoodCreated={handleFoodCreated}
             onRestaurantCreated={handleRestaurantCreated}
           />

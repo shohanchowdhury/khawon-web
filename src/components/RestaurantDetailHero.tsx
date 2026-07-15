@@ -6,6 +6,7 @@ import { NavButton } from '@/components/NavButton'
 import DetailHeader from '@/components/DetailHeader'
 import DetailMeta from '@/components/DetailMeta'
 import FoodImage from '@/components/FoodImage'
+import { getGoogleMapsUrl, getRestaurantDisplayRating } from '@/utils/restaurantDisplay'
 
 interface RestaurantDetailHeroProps {
   restaurant: RestaurantOut
@@ -28,6 +29,9 @@ export default function RestaurantDetailHero({
   titleInNav = false,
   titleAnchorRef,
 }: RestaurantDetailHeroProps) {
+  const display = getRestaurantDisplayRating(restaurant)
+  const mapsUrl = getGoogleMapsUrl(restaurant)
+
   function scrollToMenu() {
     document.getElementById('restaurant-menu')?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -44,6 +48,7 @@ export default function RestaurantDetailHero({
           <FoodImage
             name={restaurant.name}
             imageUrl={restaurant.image_url}
+            fallbackUrl={restaurant.logo_url}
             className="food-detail-hero__image"
             priority
           />
@@ -75,8 +80,9 @@ export default function RestaurantDetailHero({
             >
               {restaurant.area && <span className="badge badge--large">{restaurant.area}</span>}
               <DetailMeta
-                rating={restaurant.average_rating}
-                reviewCount={restaurant.review_count}
+                rating={display.rating}
+                reviewCount={display.reviewCount}
+                ratingSource={display.source}
               />
             </DetailHeader>
 
@@ -89,31 +95,14 @@ export default function RestaurantDetailHero({
                   <a href={`tel:${restaurant.phone}`}>{restaurant.phone}</a>
                 </p>
               )}
-              {restaurant.google_maps_url && (
+              {mapsUrl && (
                 <p className="restaurant-detail-hero__meta">
-                  <a href={restaurant.google_maps_url} target="_blank" rel="noreferrer">
+                  <a href={mapsUrl} target="_blank" rel="noreferrer">
                     Google Maps
                   </a>
                 </p>
               )}
-              {restaurant.website_url && (
-                <p className="restaurant-detail-hero__meta">
-                  <a href={restaurant.website_url} target="_blank" rel="noreferrer">
-                    Website
-                  </a>
-                </p>
-              )}
             </div>
-
-            {restaurant.food_types.length > 0 && (
-              <div className="food-type-tags restaurant-detail-hero__tags">
-                {restaurant.food_types.map((ft) => (
-                  <span key={ft.id} className="tag">
-                    {ft.name}
-                  </span>
-                ))}
-              </div>
-            )}
 
             <NavButton
               variant="primary"

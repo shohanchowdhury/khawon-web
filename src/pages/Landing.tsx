@@ -1,15 +1,18 @@
+import { useMemo } from 'react'
 import { LANDING_PATTERN } from '@/config/landingBackground'
-import { LANDING_POSTER_FOODS } from '@/config/landingPosterFoods'
+import { buildLandingPosters } from '@/config/landingPosterFoods'
 import { useAuth } from '@/context/AuthContext'
 import { useAuthModal } from '@/context/AuthModalContext'
 import LandingCta from '@/components/LandingCta'
 import LandingShowcase from '@/components/LandingShowcase'
 import { useLandingPatternDrift } from '@/hooks/useLandingPatternDrift'
+import { shuffleArray } from '@/utils/shuffleArray'
 
 export default function Landing() {
   const { isAuthenticated } = useAuth()
   const { openAuthModal } = useAuthModal()
   const patternRef = useLandingPatternDrift()
+  const posters = useMemo(() => shuffleArray(buildLandingPosters()), [])
 
   return (
     <div className="landing-page">
@@ -52,7 +55,7 @@ export default function Landing() {
           )}
         </div>
 
-        <LandingShowcase posters={LANDING_POSTER_FOODS} />
+        <LandingShowcase posters={posters} />
       </main>
     </div>
   )

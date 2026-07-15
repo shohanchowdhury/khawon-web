@@ -5,6 +5,7 @@ import DetailMeta from '@/components/DetailMeta'
 import RestaurantThumb from '@/components/RestaurantThumb'
 import ReviewHighlightSummary from '@/components/ReviewHighlightSummary'
 import { buildRestaurantLink } from '@/utils/restaurantLink'
+import { getRestaurantDisplayRating } from '@/utils/restaurantDisplay'
 
 interface FoodDetailRestaurantCardProps {
   restaurant: RestaurantOut
@@ -20,15 +21,21 @@ export default function FoodDetailRestaurantCard({
   foodName,
 }: FoodDetailRestaurantCardProps) {
   const highlight = getMockReviewHighlight(restaurant, foodName)
+  const display = getRestaurantDisplayRating(restaurant)
 
   return (
     <Link
-      to={buildRestaurantLink(restaurant.id, { foodTypeId, searchQuery })}
+      to={buildRestaurantLink(restaurant.id, {
+        foodTypeId,
+        category: foodName,
+        searchQuery,
+      })}
       className="food-detail-restaurant-card"
     >
       <RestaurantThumb
         name={restaurant.name}
         imageUrl={restaurant.image_url}
+        fallbackUrl={restaurant.logo_url}
         className="food-detail-restaurant-card__thumb"
       />
 
@@ -38,9 +45,10 @@ export default function FoodDetailRestaurantCard({
           {restaurant.area && <span className="badge">{restaurant.area}</span>}
         </div>
         <DetailMeta
-          rating={restaurant.average_rating}
-          reviewCount={restaurant.review_count}
+          rating={display.rating}
+          reviewCount={display.reviewCount}
           ratingSize="sm"
+          ratingSource={display.source}
         />
         {restaurant.address && (
           <p className="food-detail-restaurant-card__address">{restaurant.address}</p>
@@ -49,8 +57,8 @@ export default function FoodDetailRestaurantCard({
 
       <ReviewHighlightSummary
         quote={highlight.quote}
-        rating={highlight.average_rating}
-        reviewCount={highlight.review_count}
+        rating={highlight.average_rating ?? display.rating}
+        reviewCount={highlight.review_count || display.reviewCount}
         className="food-detail-restaurant-card__reviews"
       />
     </Link>

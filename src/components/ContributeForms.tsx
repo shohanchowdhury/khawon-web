@@ -11,13 +11,11 @@ import FoodPhotoPicker from '@/components/FoodPhotoPicker'
 import RestaurantPhotoPicker from '@/components/RestaurantPhotoPicker'
 
 interface ContributeFormsProps {
-  foodTypes: FoodTypeOut[]
   onFoodCreated?: (food: FoodTypeOut) => void
   onRestaurantCreated?: (restaurant: RestaurantOut) => void
 }
 
 export default function ContributeForms({
-  foodTypes,
   onFoodCreated,
   onRestaurantCreated,
 }: ContributeFormsProps) {
@@ -37,8 +35,6 @@ export default function ContributeForms({
   const [restArea, setRestArea] = useState('')
   const [restAddress, setRestAddress] = useState('')
   const [restPhone, setRestPhone] = useState('')
-  const [restMapsUrl, setRestMapsUrl] = useState('')
-  const [restWebsite, setRestWebsite] = useState('')
   const [googlePlaceId, setGooglePlaceId] = useState('')
   const [placePhotos, setPlacePhotos] = useState<PlaceSearchResult['photos']>([])
   const [selectedGooglePhotoName, setSelectedGooglePhotoName] = useState('')
@@ -49,16 +45,9 @@ export default function ContributeForms({
   const [placeResults, setPlaceResults] = useState<PlaceSearchResult[]>([])
   const [placesSearching, setPlacesSearching] = useState(false)
   const [placesError, setPlacesError] = useState('')
-  const [selectedFoodIds, setSelectedFoodIds] = useState<number[]>([])
   const [restMessage, setRestMessage] = useState('')
   const [restError, setRestError] = useState('')
   const [restSubmitting, setRestSubmitting] = useState(false)
-
-  function toggleFoodType(id: number) {
-    setSelectedFoodIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    )
-  }
 
   function handleFoodImageChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] || null
@@ -153,8 +142,6 @@ export default function ContributeForms({
     setRestArea(place.area || restArea)
     setRestAddress(place.address || '')
     setRestPhone(place.phone || '')
-    setRestMapsUrl(place.google_maps_url || '')
-    setRestWebsite(place.website_url || '')
     setGooglePlaceId(place.place_id || '')
     setPlacePhotos(place.photos || [])
     setSelectedGooglePhotoName(place.photos?.[0]?.name || '')
@@ -209,8 +196,6 @@ export default function ContributeForms({
         area: restArea.trim() || undefined,
         address: restAddress.trim() || undefined,
         phone: restPhone.trim() || undefined,
-        google_maps_url: restMapsUrl.trim() || undefined,
-        website_url: restWebsite.trim() || undefined,
         google_place_id: googlePlaceId.trim() || undefined,
         google_photo_name: selectedGooglePhotoName.trim() || undefined,
         image: restImage ?? undefined,
@@ -220,8 +205,6 @@ export default function ContributeForms({
       setRestArea('')
       setRestAddress('')
       setRestPhone('')
-      setRestMapsUrl('')
-      setRestWebsite('')
       setGooglePlaceId('')
       setPlacePhotos([])
       setSelectedGooglePhotoName('')
@@ -232,7 +215,6 @@ export default function ContributeForms({
       })
       setPlaceResults([])
       setPlacesError('')
-      setSelectedFoodIds([])
       setRestMessage(`Added "${created.name}" successfully.`)
     } catch (err) {
       setRestError(err instanceof Error ? err.message : String(err))
@@ -315,7 +297,7 @@ export default function ContributeForms({
 
           <div className="places-lookup">
             <p className="muted places-lookup__hint">
-              Look up on Google Maps to auto-fill address, phone, Maps link, and website.
+              Look up on Google Maps to auto-fill address and phone.
             </p>
             <button
               type="button"
@@ -385,42 +367,10 @@ export default function ContributeForms({
               onChange={(e) => setRestPhone(e.target.value)}
             />
           </label>
-          <label>
-            Google Maps URL
-            <input
-              type="url"
-              value={restMapsUrl}
-              onChange={(e) => setRestMapsUrl(e.target.value)}
-              placeholder="Auto-filled from Google lookup"
-            />
-          </label>
-          <label>
-            Website
-            <input
-              type="url"
-              value={restWebsite}
-              onChange={(e) => setRestWebsite(e.target.value)}
-              placeholder="Auto-filled from Google lookup"
-            />
-          </label>
 
-          <fieldset className="checkbox-group">
-            <legend>Food types served</legend>
-            {foodTypes.length === 0 ? (
-              <p className="muted">No food types yet. Add one above first.</p>
-            ) : (
-              foodTypes.map((ft) => (
-                <label key={ft.id} className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={selectedFoodIds.includes(ft.id)}
-                    onChange={() => toggleFoodType(ft.id)}
-                  />
-                  {ft.name}
-                </label>
-              ))
-            )}
-          </fieldset>
+          <p className="muted">
+            Food types are inferred from the menu after dishes are added.
+          </p>
 
           {restError && <p className="error">{restError}</p>}
           {restMessage && <p className="success">{restMessage}</p>}

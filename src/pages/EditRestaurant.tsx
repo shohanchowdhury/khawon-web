@@ -3,12 +3,11 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import {
   getPlaceDetails,
   getRestaurant,
-  listFoodTypes,
   searchPlaces,
   updateRestaurant,
 } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
-import type { FoodTypeOut, PlaceSearchResult } from '@/types/api'
+import type { PlaceSearchResult } from '@/types/api'
 import PageScroll from '@/components/PageScroll'
 import RestaurantPhotoPicker from '@/components/RestaurantPhotoPicker'
 
@@ -17,14 +16,11 @@ export default function EditRestaurant() {
   const navigate = useNavigate()
   const { isAuthenticated, loading } = useAuth()
 
-  const [foodTypes, setFoodTypes] = useState<FoodTypeOut[]>([])
   const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [area, setArea] = useState('')
   const [address, setAddress] = useState('')
   const [phone, setPhone] = useState('')
-  const [mapsUrl, setMapsUrl] = useState('')
-  const [website, setWebsite] = useState('')
   const [googlePlaceId, setGooglePlaceId] = useState('')
   const [placePhotos, setPlacePhotos] = useState<PlaceSearchResult['photos']>([])
   const [selectedGooglePhotoName, setSelectedGooglePhotoName] = useState('')
@@ -35,7 +31,7 @@ export default function EditRestaurant() {
   const [placesError, setPlacesError] = useState('')
   const [loadingPhotos, setLoadingPhotos] = useState(false)
   const [photosError, setPhotosError] = useState('')
-  const [selectedFoodIds, setSelectedFoodIds] = useState<number[]>([])
+  const [derivedFoodTypes, setDerivedFoodTypes] = useState<string[]>([])
   const [pageLoading, setPageLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -69,18 +65,15 @@ export default function EditRestaurant() {
   useEffect(() => {
     if (!id) return
 
-    Promise.all([getRestaurant(id), listFoodTypes()])
-      .then(([restaurant, allFoodTypes]) => {
+    getRestaurant(id)
+      .then((restaurant) => {
         setName(restaurant.name)
         setArea(restaurant.area || '')
         setAddress(restaurant.address || '')
         setPhone(restaurant.phone || '')
-        setMapsUrl(restaurant.google_maps_url || '')
-        setWebsite(restaurant.website_url || '')
         setGooglePlaceId(restaurant.google_place_id || '')
         setCurrentImageUrl(restaurant.image_url)
-        setSelectedFoodIds(restaurant.food_types.map((ft) => ft.id))
-        setFoodTypes(allFoodTypes)
+        setDerivedFoodTypes(restaurant.food_types.map((ft) => ft.name))
 
         if (restaurant.google_place_id) {
           void loadGooglePhotos(restaurant.google_place_id)
@@ -92,12 +85,6 @@ export default function EditRestaurant() {
 
   if (loading) return null
   if (!isAuthenticated) return <Navigate to="/login" replace />
-
-  function toggleFoodType(foodId: number) {
-    setSelectedFoodIds((prev) =>
-      prev.includes(foodId) ? prev.filter((x) => x !== foodId) : [...prev, foodId],
-    )
-  }
 
   async function handlePlacesSearch() {
     if (!name.trim()) {
@@ -126,8 +113,6 @@ export default function EditRestaurant() {
     setArea(place.area || area)
     setAddress(place.address || '')
     setPhone(place.phone || '')
-    setMapsUrl(place.google_maps_url || '')
-    setWebsite(place.website_url || '')
     setGooglePlaceId(place.place_id || '')
     setPlacePhotos(place.photos || [])
     setSelectedGooglePhotoName(place.photos?.[0]?.name || '')
@@ -161,8 +146,6 @@ export default function EditRestaurant() {
         area: area.trim() || undefined,
         address: address.trim() || undefined,
         phone: phone.trim() || undefined,
-        google_maps_url: mapsUrl.trim() || undefined,
-        website_url: website.trim() || undefined,
         google_place_id: googlePlaceId.trim() || undefined,
         google_photo_name: selectedGooglePhotoName.trim() || undefined,
         image: uploadFile ?? undefined,
@@ -230,7 +213,7 @@ export default function EditRestaurant() {
 
             <div className="places-lookup">
               <p className="muted places-lookup__hint">
-                Link to Google Maps to refresh address, links, and photos.
+                Link to Google Maps to refresh address and photos.
               </p>
               <button
                 type="button"
@@ -268,28 +251,13 @@ export default function EditRestaurant() {
               Phone
               <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </label>
-            <label>
-              Google Maps URL
-              <input type="url" value={mapsUrl} onChange={(e) => setMapsUrl(e.target.value)} />
-            </label>
-            <label>
-              Website
-              <input type="url" value={website} onChange={(e) => setWebsite(e.target.value)} />
-            </label>
 
-            <fieldset className="checkbox-group">
-              <legend>Food types served</legend>
-              {foodTypes.map((ft) => (
-                <label key={ft.id} className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={selectedFoodIds.includes(ft.id)}
-                    onChange={() => toggleFoodType(ft.id)}
-                  />
-                  {ft.name}
-                </label>
-              ))}
-            </fieldset>
+            <p className="muted">
+              Food types are inferred from the menu — add or update dishes to change them.
+              {derivedFoodTypes.length > 0 && (
+                <> Current: {derivedFoodTypes.join(', ')}.</>
+              )}
+            </p>
 
             {message && <p className="success">{message}</p>}
             <button type="submit" disabled={submitting}>

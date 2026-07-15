@@ -1,71 +1,108 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { DishOut } from '@/types/api'
-import RestaurantDishRow from '@/components/RestaurantDishRow'
-import { groupDishesByCategory } from '@/utils/groupDishesByCategory'
+import RestaurantDishCard from '@/components/RestaurantDishCard'
+import {
+  dishCategorySlug,
+  groupDishesByCategory,
+} from '@/utils/groupDishesByCategory'
+import {
+  dishFoodTypeSlug,
+  groupDishesByFoodType,
+} from '@/utils/groupDishesByFoodType'
 
 interface RestaurantMenuSectionProps {
   dishes: DishOut[]
   loading?: boolean
+  initialFoodTypeId?: number
 }
 
 export default function RestaurantMenuSection({
   dishes,
   loading = false,
+  initialFoodTypeId,
 }: RestaurantMenuSectionProps) {
-  const categories = useMemo(() => groupDishesByCategory(dishes), [dishes])
-  const [activeSlug, setActiveSlug] = useState(categories[0]?.slug ?? '')
-  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map())
-  const chipsRef = useRef<HTMLDivElement>(null)
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState<string | null>(null)
+  const [selectedFoodTypeSlug, setSelectedFoodTypeSlug] = useState<string | null>(null)
+  const initialFoodTypeHandled = useRef(false)
 
-  useEffect(() => {
-    setActiveSlug(categories[0]?.slug ?? '')
-  }, [categories])
+  const dishesForCategoryChips = useMemo(() => {
+    if (!selectedFoodTypeSlug) return dishes
+    return dishes.filter((dish) => dishFoodTypeSlug(dish) === selectedFoodTypeSlug)
+  }, [dishes, selectedFoodTypeSlug])
 
-  const scrollToCategory = useCallback((slug: string) => {
-    const section = sectionRefs.current.get(slug)
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      setActiveSlug(slug)
-    }
-  }, [])
+  const dishesForFoodTypeChips = useMemo(() => {
+    if (!selectedCategorySlug) return dishes
+    return dishes.filter((dish) => dishCategorySlug(dish) === selectedCategorySlug)
+  }, [dishes, selectedCategorySlug])
 
-  useEffect(() => {
-    if (categories.length === 0) return undefined
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
-
-        const top = visible[0]
-        if (top?.target.id) {
-          setActiveSlug(top.target.id)
-        }
-      },
-      {
-        rootMargin: '-40% 0px -45% 0px',
-        threshold: [0, 0.25, 0.5, 0.75, 1],
-      },
+  const visibleCategoryGroups = useMemo(
+    () => groupDishesByCategory(dishesForCategoryChips),
+    [dishesForCategoryChips],
+  )
+  const visibleFoodTypeGroups = useMemo(
+    () => groupDishesByFoodType(dishesForFoodTypeChips),
+    [dishesForFoodTypeChips],
+  )
+  const showFoodTypeFilter = useMemo(() => {
+    const allFoodTypeGroups = groupDishesByFoodType(dishes)
+    return allFoodTypeGroups.some(
+      (group) => group.label !== 'Other' || group.foodTypeId != null,
     )
+  }, [dishes])
 
-    for (const category of categories) {
-      const section = sectionRefs.current.get(category.slug)
-      if (section) {
-        observer.observe(section)
+  useEffect(() => {
+    setSelectedCategorySlug(null)
+    setSelectedFoodTypeSlug(null)
+    initialFoodTypeHandled.current = false
+  }, [dishes])
+
+  useEffect(() => {
+    if (
+      selectedCategorySlug &&
+      !visibleCategoryGroups.some((category) => category.slug === selectedCategorySlug)
+    ) {
+      setSelectedCategorySlug(null)
+    }
+  }, [selectedCategorySlug, visibleCategoryGroups])
+
+  useEffect(() => {
+    if (
+      selectedFoodTypeSlug &&
+      !visibleFoodTypeGroups.some((foodType) => foodType.slug === selectedFoodTypeSlug)
+    ) {
+      setSelectedFoodTypeSlug(null)
+    }
+  }, [selectedFoodTypeSlug, visibleFoodTypeGroups])
+
+  useEffect(() => {
+    if (!initialFoodTypeId || initialFoodTypeHandled.current || dishes.length === 0) {
+      return
+    }
+
+    const allFoodTypeGroups = groupDishesByFoodType(dishes)
+    const match = allFoodTypeGroups.find((group) => group.foodTypeId === initialFoodTypeId)
+    if (!match) return
+
+    initialFoodTypeHandled.current = true
+    setSelectedFoodTypeSlug(match.slug)
+  }, [dishes, initialFoodTypeId])
+
+  const filteredDishes = useMemo(() => {
+    return dishes.filter((dish) => {
+      if (selectedCategorySlug && dishCategorySlug(dish) !== selectedCategorySlug) {
+        return false
       }
-    }
+      if (selectedFoodTypeSlug && dishFoodTypeSlug(dish) !== selectedFoodTypeSlug) {
+        return false
+      }
+      return true
+    })
+  }, [dishes, selectedCategorySlug, selectedFoodTypeSlug])
 
-    return () => observer.disconnect()
-  }, [categories])
-
-  useEffect(() => {
-    if (!activeSlug || !chipsRef.current) return
-    const activeChip = chipsRef.current.querySelector<HTMLButtonElement>(
-      `[data-category-slug="${activeSlug}"]`,
-    )
-    activeChip?.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' })
-  }, [activeSlug])
+  const displayCategories = useMemo(
+    () => groupDishesByCategory(filteredDishes),
+    [filteredDishes],
+  )
 
   if (loading) {
     return (
@@ -76,7 +113,7 @@ export default function RestaurantMenuSection({
     )
   }
 
-  if (categories.length === 0) {
+  if (dishes.length === 0) {
     return (
       <section id="restaurant-menu" className="restaurant-menu">
         <h2 className="restaurant-menu__heading">Menu</h2>
@@ -86,50 +123,112 @@ export default function RestaurantMenuSection({
   }
 
   return (
-    <section id="restaurant-menu" className="restaurant-menu">
+    <section
+      id="restaurant-menu"
+      className={
+        showFoodTypeFilter
+          ? 'restaurant-menu restaurant-menu--with-food-type-filter'
+          : 'restaurant-menu'
+      }
+    >
       <h2 className="restaurant-menu__heading">Menu</h2>
 
-      <div className="restaurant-menu__chips" ref={chipsRef}>
-        {categories.map((category) => (
+      <div className="restaurant-menu__filters">
+        <div className="restaurant-menu__chips restaurant-menu__chips--category">
           <button
-            key={category.slug}
             type="button"
-            data-category-slug={category.slug}
             className={
-              activeSlug === category.slug
+              selectedCategorySlug === null
                 ? 'restaurant-menu__chip restaurant-menu__chip--active'
                 : 'restaurant-menu__chip'
             }
-            onClick={() => scrollToCategory(category.slug)}
+            onClick={() => setSelectedCategorySlug(null)}
           >
-            {category.label}
-            <span className="restaurant-menu__chip-count">{category.dishes.length}</span>
+            All categories
+            <span className="restaurant-menu__chip-count">{dishesForCategoryChips.length}</span>
           </button>
-        ))}
+
+          {visibleCategoryGroups.map((category) => (
+            <button
+              key={category.slug}
+              type="button"
+              className={
+                selectedCategorySlug === category.slug
+                  ? 'restaurant-menu__chip restaurant-menu__chip--active'
+                  : 'restaurant-menu__chip'
+              }
+              onClick={() =>
+                setSelectedCategorySlug((current) =>
+                  current === category.slug ? null : category.slug,
+                )
+              }
+            >
+              {category.label}
+              <span className="restaurant-menu__chip-count">{category.dishes.length}</span>
+            </button>
+          ))}
+        </div>
+
+        {showFoodTypeFilter && (
+          <div className="restaurant-menu__chips restaurant-menu__chips--food-type">
+            <button
+              type="button"
+              className={
+                selectedFoodTypeSlug === null
+                  ? 'restaurant-menu__chip restaurant-menu__chip--active'
+                  : 'restaurant-menu__chip'
+              }
+              onClick={() => setSelectedFoodTypeSlug(null)}
+            >
+              All food types
+              <span className="restaurant-menu__chip-count">{dishesForFoodTypeChips.length}</span>
+            </button>
+
+            {visibleFoodTypeGroups.map((foodType) => {
+              const dishCount = foodType.categories.reduce(
+                (total, category) => total + category.dishes.length,
+                0,
+              )
+
+              return (
+                <button
+                  key={foodType.slug}
+                  type="button"
+                  className={
+                    selectedFoodTypeSlug === foodType.slug
+                      ? 'restaurant-menu__chip restaurant-menu__chip--active'
+                      : 'restaurant-menu__chip'
+                  }
+                  onClick={() =>
+                    setSelectedFoodTypeSlug((current) =>
+                      current === foodType.slug ? null : foodType.slug,
+                    )
+                  }
+                >
+                  {foodType.label}
+                  <span className="restaurant-menu__chip-count">{dishCount}</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       <div className="restaurant-menu__sections">
-        {categories.map((category) => (
-          <section
-            key={category.slug}
-            id={category.slug}
-            ref={(node) => {
-              if (node) {
-                sectionRefs.current.set(category.slug, node)
-              } else {
-                sectionRefs.current.delete(category.slug)
-              }
-            }}
-            className="restaurant-menu__category"
-          >
-            <h3 className="restaurant-menu__category-title">{category.label}</h3>
-            <div className="restaurant-menu__dishes">
-              {category.dishes.map((dish) => (
-                <RestaurantDishRow key={dish.id} dish={dish} />
-              ))}
-            </div>
-          </section>
-        ))}
+        {displayCategories.length === 0 ? (
+          <p className="empty">No dishes match the selected filters.</p>
+        ) : (
+          displayCategories.map((category) => (
+            <section key={category.slug} className="restaurant-menu__category">
+              <h3 className="restaurant-menu__category-title">{category.label}</h3>
+              <div className="restaurant-menu__dishes">
+                {category.dishes.map((dish) => (
+                  <RestaurantDishCard key={dish.id} dish={dish} />
+                ))}
+              </div>
+            </section>
+          ))
+        )}
       </div>
     </section>
   )

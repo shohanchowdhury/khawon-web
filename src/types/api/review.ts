@@ -17,3 +17,10 @@ export interface ReviewOut {
   is_verified: boolean
   created_at: string
 }
+
+export interface ReviewListResult {
+  reviews: ReviewOut[]
+  total: number
+  offset: number
+  limit: number
+}

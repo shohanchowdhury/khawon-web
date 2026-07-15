@@ -18,11 +18,13 @@ import {
 interface FoodsSplitLayoutProps {
   searchQuery: string
   browseData: FoodsBrowseData
+  initialCategory?: string | null
 }
 
 export default function FoodsSplitLayout({
   searchQuery,
   browseData,
+  initialCategory = null,
 }: FoodsSplitLayoutProps) {
   const {
     categories,
@@ -57,6 +59,18 @@ export default function FoodsSplitLayout({
   useEffect(() => {
     setDishPage(0)
   }, [searchQuery, selectedCategory, selectedSubType])
+
+  useEffect(() => {
+    if (!initialCategory?.trim() || categoriesLoading) return
+
+    const match = categories.find(
+      (category) => category.name.toLowerCase() === initialCategory.trim().toLowerCase(),
+    )
+    if (match) {
+      setSelectedCategory(match.name)
+      setSelectedSubType(null)
+    }
+  }, [initialCategory, categories, categoriesLoading])
 
   const showFeatured = !trimmedQuery && !selectedCategory
   const showSubTypes = !trimmedQuery && selectedCategory != null

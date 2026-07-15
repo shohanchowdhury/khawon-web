@@ -3,10 +3,11 @@ import { useParams, useSearchParams } from 'react-router-dom'
 import { getRestaurant, getRestaurantDishes, getRestaurantReviews } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { useNavBarOverrides } from '@/context/NavBarContext'
-import type { DishOut, RestaurantOut, ReviewOut } from '@/types/api'
+import type { DishOut, RestaurantOut, RestaurantReviewOut } from '@/types/api'
 import PageScroll from '@/components/PageScroll'
 import RestaurantDetailHero from '@/components/RestaurantDetailHero'
 import RestaurantMenuSection from '@/components/RestaurantMenuSection'
+import RestaurantReviewForm from '@/components/RestaurantReviewForm'
 import ReviewForm from '@/components/ReviewForm'
 import StarRating from '@/components/StarRating'
 import useScrolledPast from '@/hooks/useScrolledPast'
@@ -17,20 +18,28 @@ export default function RestaurantDetail() {
   const { setOverrides } = useNavBarOverrides()
   const [searchParams] = useSearchParams()
   const foodTypeId = Number(searchParams.get('foodTypeId'))
+  const categoryParam = searchParams.get('category')?.trim() || ''
   const searchQuery = searchParams.get('q') || ''
 
   const [backAnchor, setBackAnchor] = useState<HTMLDivElement | null>(null)
   const [titleAnchor, setTitleAnchor] = useState<HTMLDivElement | null>(null)
   const [restaurant, setRestaurant] = useState<RestaurantOut | null>(null)
   const [dishes, setDishes] = useState<DishOut[]>([])
-  const [reviews, setReviews] = useState<ReviewOut[]>([])
+  const [reviews, setReviews] = useState<RestaurantReviewOut[]>([])
   const [loading, setLoading] = useState(true)
   const [menuLoading, setMenuLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const loadRestaurant = useCallback(() => {
+    if (!id) return
+    getRestaurant(id).then(setRestaurant).catch(() => setRestaurant(null))
+  }, [id])
+
   const loadReviews = useCallback(() => {
     if (!id) return
-    getRestaurantReviews(id).then(setReviews).catch(() => setReviews([]))
+    getRestaurantReviews(id)
+      .then((result) => setReviews(result.reviews))
+      .catch(() => setReviews([]))
   }, [id])
 
   useEffect(() => {
@@ -41,9 +50,9 @@ export default function RestaurantDetail() {
     setError('')
 
     Promise.all([getRestaurant(id), getRestaurantReviews(id)])
-      .then(([r, revs]) => {
+      .then(([r, reviewResult]) => {
         setRestaurant(r)
-        setReviews(revs)
+        setReviews(reviewResult.reviews)
       })
       .catch((err) => setError(err instanceof Error ? err.message : String(err)))
       .finally(() => setLoading(false))
@@ -58,20 +67,26 @@ export default function RestaurantDetail() {
     foodTypeId ||
     restaurant?.food_types?.[0]?.id
 
-  const backHref = activeFoodTypeId
-    ? `/food/${activeFoodTypeId}`
+  const categoryName =
+    categoryParam ||
+    (activeFoodTypeId
+      ? restaurant?.food_types?.find((foodType) => foodType.id === activeFoodTypeId)?.name
+      : undefined)
+
+  const backHref = categoryName
+    ? `/foods?category=${encodeURIComponent(categoryName)}`
     : searchQuery
       ? `/search?q=${encodeURIComponent(searchQuery)}`
       : '/restaurants'
 
-  const backLabel = activeFoodTypeId
-    ? '← Back to food'
+  const backLabel = categoryName
+    ? `← Back to ${categoryName}`
     : searchQuery
       ? '← Back to search results'
       : '← Back to restaurants'
 
-  const navBackAriaLabel = activeFoodTypeId
-    ? 'Back to food'
+  const navBackAriaLabel = categoryName
+    ? `Back to ${categoryName}`
     : searchQuery
       ? 'Back to search results'
       : 'Back to restaurants'
@@ -99,6 +114,11 @@ export default function RestaurantDetail() {
     titleInNav,
   ])
 
+  function handleRestaurantReviewSubmitted() {
+    loadReviews()
+    loadRestaurant()
+  }
+
   return (
     <div className="page restaurant-detail-page">
       <PageScroll>
@@ -125,10 +145,14 @@ export default function RestaurantDetail() {
                 titleAnchorRef={setTitleAnchor}
               />
 
-              <RestaurantMenuSection dishes={dishes} loading={menuLoading} />
+              <RestaurantMenuSection
+                dishes={dishes}
+                loading={menuLoading}
+                initialFoodTypeId={Number.isFinite(foodTypeId) ? foodTypeId : undefined}
+              />
 
               <section className="reviews-section" id="restaurant-reviews">
-                <h2>Reviews</h2>
+                <h2>Restaurant reviews</h2>
                 {reviews.length === 0 ? (
                   <p className="muted">No reviews yet. Be the first!</p>
                 ) : (
@@ -139,9 +163,6 @@ export default function RestaurantDetail() {
                           <strong>{review.username}</strong>
                           <StarRating rating={review.rating} size="sm" />
                         </div>
-                        {review.dish_name && (
-                          <p className="muted">on {review.dish_name}</p>
-                        )}
                         {review.comment && <p>{review.comment}</p>}
                         <time className="muted">
                           {new Date(review.created_at).toLocaleDateString()}
@@ -150,15 +171,16 @@ export default function RestaurantDetail() {
                     ))}
                   </ul>
                 )}
+
+                <RestaurantReviewForm
+                  restaurantId={restaurant.id}
+                  onSubmitted={handleRestaurantReviewSubmitted}
+                />
               </section>
 
-              <ReviewForm
-                dishes={dishes}
-                onSubmitted={() => {
-                  loadReviews()
-                  if (id) getRestaurant(id).then(setRestaurant)
-                }}
-              />
+              <section className="reviews-section" id="dish-reviews">
+                <ReviewForm dishes={dishes} />
+              </section>
             </>
           )}
         </main>

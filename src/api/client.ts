@@ -9,8 +9,13 @@ import type {
   RestaurantCreatePayload,
   RestaurantOut,
   RestaurantPhotoUpdatePayload,
+  RestaurantCatalogueResult,
   ReviewCreate,
   ReviewOut,
+  ReviewListResult,
+  RestaurantReviewCreate,
+  RestaurantReviewOut,
+  RestaurantReviewListResult,
   FoodDetailResult,
   Token,
   UserCreate,
@@ -130,20 +135,44 @@ export function getDish(id: number | string): Promise<DishOut> {
   return request(`/dishes/${id}`)
 }
 
-export function getDishReviews(id: number | string): Promise<ReviewOut[]> {
-  return request(`/dishes/${id}/reviews`)
+export function getDishReviews(
+  id: number | string,
+  options: { offset?: number; limit?: number } = {},
+): Promise<ReviewListResult> {
+  const params = new URLSearchParams()
+  if (options.offset != null) params.set('offset', String(options.offset))
+  if (options.limit != null) params.set('limit', String(options.limit))
+  const query = params.toString()
+  return request(`/dishes/${id}/reviews${query ? `?${query}` : ''}`)
 }
 
 export function getRestaurant(id: number | string): Promise<RestaurantOut> {
   return request(`/restaurants/${id}`)
 }
 
-export function getRestaurantReviews(id: number | string): Promise<ReviewOut[]> {
-  return request(`/restaurants/${id}/reviews`)
+export function getRestaurantReviews(
+  id: number | string,
+  options: { offset?: number; limit?: number } = {},
+): Promise<RestaurantReviewListResult> {
+  const params = new URLSearchParams()
+  if (options.offset != null) params.set('offset', String(options.offset))
+  if (options.limit != null) params.set('limit', String(options.limit))
+  const query = params.toString()
+  return request(`/restaurants/${id}/reviews${query ? `?${query}` : ''}`)
 }
 
 export function getRestaurantDishes(id: number | string): Promise<DishOut[]> {
   return request(`/restaurants/${id}/dishes`)
+}
+
+export function submitRestaurantReview(
+  restaurantId: number | string,
+  data: RestaurantReviewCreate,
+): Promise<RestaurantReviewOut> {
+  return request(`/restaurants/${restaurantId}/reviews`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
 }
 
 export function submitReview(data: ReviewCreate): Promise<ReviewOut> {
@@ -182,11 +211,20 @@ export function getFoodCatalogue(query = ''): Promise<FoodTypePopularOut[]> {
   return request(`/food-types/catalogue${params}`)
 }
 
-export function getRestaurantCatalogue(query = ''): Promise<RestaurantOut[]> {
-  const params = query.trim()
-    ? `?q=${encodeURIComponent(query.trim())}`
-    : ''
-  return request(`/restaurants/catalogue${params}`)
+export function listRestaurants(): Promise<RestaurantOut[]> {
+  return request('/restaurants/')
+}
+
+export function getRestaurantCatalogue(
+  query = '',
+  options: { offset?: number; limit?: number } = {},
+): Promise<RestaurantCatalogueResult> {
+  const params = new URLSearchParams()
+  if (query.trim()) params.set('q', query.trim())
+  if (options.offset != null) params.set('offset', String(options.offset))
+  if (options.limit != null) params.set('limit', String(options.limit))
+  const qs = params.toString()
+  return request(`/restaurants/catalogue${qs ? `?${qs}` : ''}`)
 }
 
 export function searchPlaces(query: string, area = ''): Promise<PlaceSearchResult[]> {
@@ -279,8 +317,6 @@ function buildRestaurantFormData(data: RestaurantCreatePayload): FormData {
   if (data.area) body.append('area', data.area)
   if (data.address) body.append('address', data.address)
   if (data.phone) body.append('phone', data.phone)
-  if (data.google_maps_url) body.append('google_maps_url', data.google_maps_url)
-  if (data.website_url) body.append('website_url', data.website_url)
   if (data.google_place_id) body.append('google_place_id', data.google_place_id)
   if (data.google_photo_name) body.append('google_photo_name', data.google_photo_name)
   if (data.image) body.append('image', data.image)
