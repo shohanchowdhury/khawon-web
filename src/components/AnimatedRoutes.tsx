@@ -6,6 +6,8 @@ import Landing from '@/pages/Landing'
 import FoodDetail from '@/pages/FoodDetail'
 import Foods from '@/pages/Foods'
 import DishCompare from '@/pages/DishCompare'
+import BrandDetail from '@/pages/BrandDetail'
+import BrandDishDetail from '@/pages/BrandDishDetail'
 import SearchResults from '@/pages/SearchResults'
 import RestaurantDetail from '@/pages/RestaurantDetail'
 import Login from '@/pages/Login'
@@ -46,6 +48,11 @@ export default function AnimatedRoutes() {
                 <Route path="/catalogue" element={<Navigate to="/foods" replace />} />
                 <Route path="/restaurants" element={<RestaurantCatalogue />} />
                 <Route path="/dishes/compare/:canonicalDishId" element={<DishCompare />} />
+                <Route path="/brands/:chainId" element={<BrandDetail />} />
+                <Route
+                  path="/brands/:chainId/dishes/:foodTypeId/:slug"
+                  element={<BrandDishDetail />}
+                />
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/restaurant/:id" element={<RestaurantDetail />} />
                 <Route path="/login" element={<Login />} />

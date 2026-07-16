@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import BrandDishGrid from '@/components/BrandDishGrid'
 import CanonicalDishGrid from '@/components/CanonicalDishGrid'
 import FoodsCategorySidebar from '@/components/FoodsCategorySidebar'
 import FoodsHomePanel from '@/components/FoodsHomePanel'
@@ -14,6 +15,8 @@ import {
   getPopularPicks,
   POPULAR_HOME_LIMIT,
 } from '@/utils/featuredDishes'
+import { brandDishKey } from '@/utils/brandLink'
+import { resolveBrandDishCardImages } from '@/utils/productImageUrl'
 
 interface FoodsSplitLayoutProps {
   searchQuery: string
@@ -81,6 +84,16 @@ export default function FoodsSplitLayout({
     [featuredDishes],
   )
 
+  const brandCardImages = useMemo(() => {
+    const seenProductUrls = new Set<string>()
+    return new Map(
+      categoryBrowse.brandDishes.map((dish) => [
+        brandDishKey(dish),
+        resolveBrandDishCardImages(dish, seenProductUrls),
+      ]),
+    )
+  }, [categoryBrowse.brandDishes])
+
   function handleSelectCategory(name: string | null) {
     setSelectedCategory(name)
     setSelectedSubType(null)
@@ -91,6 +104,21 @@ export default function FoodsSplitLayout({
     : selectedCategory
       ? 'foods-page--browse'
       : ''
+
+  const countLabel =
+    !categoryBrowse.dishesLoading && categoryBrowse.dishesTotal > 0
+      ? `${categoryBrowse.dishesTotal} result${
+          categoryBrowse.dishesTotal !== 1 ? 's' : ''
+        }${
+          selectedSubType
+            ? ` in ${selectedSubType}`
+            : selectedCategory
+              ? ` in ${selectedCategory}`
+              : trimmedQuery
+                ? ` for "${trimmedQuery}"`
+                : ''
+        }`
+      : undefined
 
   return (
     <div
@@ -165,6 +193,16 @@ export default function FoodsSplitLayout({
 
             {showDishGrid && (
               <>
+                {categoryBrowse.canonicalDishes.length > 0 && (
+                  <section className="foods-layout__compare-strip">
+                    <h2 className="foods-layout__section-title">Compare across brands</h2>
+                    <CanonicalDishGrid
+                      dishes={categoryBrowse.canonicalDishes}
+                      emptyMessage=""
+                    />
+                  </section>
+                )}
+
                 <h2 className="foods-layout__section-title">
                   {selectedSubType
                     ? `${selectedSubType} dishes`
@@ -173,36 +211,30 @@ export default function FoodsSplitLayout({
                       : 'Search results'}
                 </h2>
 
-                <CanonicalDishGrid
-                  dishes={categoryBrowse.canonicalDishes}
+                <BrandDishGrid
+                  dishes={categoryBrowse.brandDishes}
                   loading={categoryBrowse.dishesLoading}
                   error={categoryBrowse.dishesError}
                   emptyMessage={
                     trimmedQuery
                       ? `No dishes match "${trimmedQuery}". Try the nav search.`
                       : selectedSubType
-                        ? `No comparable dishes found for ${selectedSubType}.`
+                        ? `No dishes found for ${selectedSubType}.`
                         : selectedCategory
-                          ? `No comparable dishes found for ${selectedCategory}.`
+                          ? `No dishes found for ${selectedCategory}.`
                           : 'Pick a category or search from the nav bar.'
                   }
-                  countLabel={
-                    !categoryBrowse.dishesLoading && categoryBrowse.dishesTotal > 0
-                      ? `${categoryBrowse.dishesTotal} dish${
-                          categoryBrowse.dishesTotal !== 1 ? 'es' : ''
-                        } to compare${
-                          selectedSubType
-                            ? ` in ${selectedSubType}`
-                            : selectedCategory
-                              ? ` in ${selectedCategory}`
-                              : ''
-                        }`
-                      : undefined
-                  }
+                  countLabel={countLabel}
                   page={dishPage}
                   pageSize={DISH_BROWSE_PAGE_SIZE}
                   total={categoryBrowse.dishesTotal}
                   onPageChange={setDishPage}
+                  resolveImage={(dish) =>
+                    brandCardImages.get(brandDishKey(dish)) ?? {
+                      imageUrl: dish.image_url,
+                      fallbackUrl: null,
+                    }
+                  }
                 />
               </>
             )}

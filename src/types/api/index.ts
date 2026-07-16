@@ -30,6 +30,11 @@ export type {
   RestaurantSummaryOut,
   CanonicalDishOut,
   CanonicalDishMatch,
+  BrandOut,
+  BrandDishOut,
+  BrandBranchOut,
+  BrandDishDetailOut,
+  BrandDetailOut,
   DishSearchResult,
   DishCompareResult,
 } from './dish'

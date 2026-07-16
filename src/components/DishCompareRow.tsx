@@ -1,15 +1,20 @@
 import { Link } from 'react-router-dom'
-import type { DishOut } from '@/types/api'
+import type { BrandDishOut } from '@/types/api'
 import FoodImage from '@/components/FoodImage'
 import StarRating from '@/components/StarRating'
-import { getDishDisplayPrice } from '@/utils/formatPriceBdt'
-import { buildRestaurantLink } from '@/utils/restaurantLink'
+import {
+  formatBranchAvailability,
+  getBrandDishDisplayPrice,
+} from '@/utils/formatPriceBdt'
+import {
+  buildBrandDishLink,
+  buildBrandLink,
+  resolveBrandDishFoodTypeId,
+} from '@/utils/brandLink'
 
 interface DishCompareRowProps {
-  dish: DishOut
+  dish: BrandDishOut
   priority?: boolean
-  foodTypeId?: number | null
-  category?: string | null
   imageUrl?: string | null
   fallbackUrl?: string | null
 }
@@ -17,37 +22,33 @@ interface DishCompareRowProps {
 export default function DishCompareRow({
   dish,
   priority = false,
-  foodTypeId,
-  category,
   imageUrl,
   fallbackUrl,
 }: DishCompareRowProps) {
-  const price = getDishDisplayPrice(dish)
+  const price = getBrandDishDisplayPrice(dish)
+  const availability = formatBranchAvailability(dish.branch_count, dish.brand_branch_total)
+  const foodTypeId = resolveBrandDishFoodTypeId(dish)
   const primaryImageUrl = imageUrl !== undefined ? imageUrl : dish.image_url
-  const imageFallbackUrl =
-    fallbackUrl !== undefined ? fallbackUrl : dish.restaurant.image_url
+  const linkTarget =
+    foodTypeId != null
+      ? buildBrandDishLink(dish.brand.id, foodTypeId, dish.slug)
+      : buildBrandLink(dish.brand.id)
 
   return (
     <li className="dish-compare-row">
-      <Link
-        to={buildRestaurantLink(dish.restaurant.id, {
-          foodTypeId: foodTypeId ?? undefined,
-          category: category ?? undefined,
-        })}
-        className="dish-compare-card"
-      >
+      <Link to={linkTarget} className="dish-compare-card">
         <div className="dish-compare-card__media">
           <FoodImage
             name={dish.name}
             imageUrl={primaryImageUrl}
-            fallbackUrl={imageFallbackUrl}
+            fallbackUrl={fallbackUrl}
             className="dish-compare-card__image"
             priority={priority}
           />
         </div>
 
         <div className="dish-compare-card__body">
-          <span className="dish-compare-card__restaurant">{dish.restaurant.name}</span>
+          <span className="dish-compare-card__restaurant">{dish.brand.name}</span>
           <h3 className="dish-compare-card__name">{dish.name}</h3>
           <div className="dish-compare-card__meta">
             {price && (
@@ -57,6 +58,9 @@ export default function DishCompareRow({
                 )}
                 {price.text}
               </span>
+            )}
+            {availability && (
+              <span className="dish-compare-card__availability muted">{availability}</span>
             )}
             {dish.average_rating != null ? (
               <StarRating rating={dish.average_rating} size="sm" />

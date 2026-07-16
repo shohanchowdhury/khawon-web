@@ -23,6 +23,8 @@ import type {
   DishOut,
   DishSearchResult,
   DishCompareResult,
+  BrandDetailOut,
+  BrandDishDetailOut,
   FoodSubTypeListResult,
 } from '@/types/api'
 
@@ -129,6 +131,18 @@ export function compareDish(
   return request(
     `/dishes/compare/${canonicalDishId}${query ? `?${query}` : ''}`,
   )
+}
+
+export function getBrand(chainId: number | string): Promise<BrandDetailOut> {
+  return request(`/brands/${chainId}`)
+}
+
+export function getBrandDish(
+  chainId: number | string,
+  foodTypeId: number | string,
+  slug: string,
+): Promise<BrandDishDetailOut> {
+  return request(`/brands/${chainId}/dishes/${foodTypeId}/${encodeURIComponent(slug)}`)
 }
 
 export function getDish(id: number | string): Promise<DishOut> {

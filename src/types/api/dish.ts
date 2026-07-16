@@ -65,18 +65,69 @@ export interface CanonicalDishMatch extends CanonicalDishOut {
   max_price_bdt: number | null
 }
 
+export interface BrandOut {
+  id: number
+  name: string
+}
+
+export interface BrandDishOut {
+  brand: BrandOut
+  food_type_id: number | null
+  slug: string
+  name: string
+  description: string | null
+  image_url: string | null
+  category_raw: string | null
+  food_type: FoodTypeOut | null
+  cuisines: CuisineOut[]
+  flavor_tags: FlavorTagOut[]
+  canonical_dish_id: number | null
+  price_min_bdt: number
+  price_max_bdt: number
+  price_varies: boolean
+  branch_count: number
+  brand_branch_total: number
+  is_sold_out_everywhere: boolean
+  average_rating: number | null
+  review_count: number
+}
+
+export interface BrandBranchOut {
+  restaurant_id: number
+  restaurant_name: string
+  area: string | null
+  product_id: number
+  price_bdt: number
+  is_sold_out: boolean
+  average_rating: number | null
+  review_count: number
+}
+
+export interface BrandDishDetailOut extends BrandDishOut {
+  branches: BrandBranchOut[]
+}
+
+export interface BrandDetailOut {
+  id: number
+  name: string
+  branch_count: number
+  branches: RestaurantSummaryOut[]
+  display_rating: number | null
+  display_rating_source: RestaurantRatingSource
+}
+
 export interface DishSearchResult {
   query: string
   canonical_matches: CanonicalDishMatch[]
   total: number
   offset: number
   limit: number
-  dishes: DishOut[]
+  dishes: BrandDishOut[]
 }
 
 export interface DishCompareResult {
   canonical_dish: CanonicalDishOut
-  dishes: DishOut[]
+  dishes: BrandDishOut[]
   total: number
   offset: number
   limit: number

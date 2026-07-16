@@ -31,3 +31,20 @@ export function resolveCompareCardImages(
     fallbackUrl: heroUrl,
   }
 }
+
+export function resolveBrandDishCardImages(
+  dish: { image_url: string | null },
+  seenProductUrls: Set<string>,
+): { imageUrl: string | null; fallbackUrl: string | null } {
+  const productUrl = normalizeProductImageUrl(dish.image_url)
+
+  if (productUrl && seenProductUrls.has(productUrl)) {
+    return { imageUrl: null, fallbackUrl: productUrl }
+  }
+
+  if (productUrl) {
+    seenProductUrls.add(productUrl)
+  }
+
+  return { imageUrl: productUrl, fallbackUrl: null }
+}

@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { compareDish } from '@/api/client'
-import type { DishOut } from '@/types/api'
+import type { BrandDishOut } from '@/types/api'
 import DishCompareRow from '@/components/DishCompareRow'
 import PageScroll from '@/components/PageScroll'
 import PaginationControls from '@/components/PaginationControls'
 import StarRating from '@/components/StarRating'
-import { resolveCompareCardImages } from '@/utils/productImageUrl'
+import { brandDishKey } from '@/utils/brandLink'
+import { resolveBrandDishCardImages } from '@/utils/productImageUrl'
 
 const COMPARE_PAGE_SIZE = 20
 
@@ -21,14 +22,13 @@ function formatPriceRange(
 
 export default function DishCompare() {
   const { canonicalDishId } = useParams<{ canonicalDishId: string }>()
-  const [dishes, setDishes] = useState<DishOut[]>([])
+  const [dishes, setDishes] = useState<BrandDishOut[]>([])
   const [dishName, setDishName] = useState('')
   const [foodTypeName, setFoodTypeName] = useState<string | null>(null)
-  const [foodTypeId, setFoodTypeId] = useState<number | null>(null)
   const [averageRating, setAverageRating] = useState<number | null>(null)
   const [priceMin, setPriceMin] = useState<number | null>(null)
   const [priceMax, setPriceMax] = useState<number | null>(null)
-  const [totalRestaurants, setTotalRestaurants] = useState(0)
+  const [totalBrands, setTotalBrands] = useState(0)
   const [page, setPage] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -54,9 +54,8 @@ export default function DishCompare() {
       .then((result) => {
         setDishName(result.canonical_dish.name)
         setFoodTypeName(result.canonical_dish.food_type?.name ?? null)
-        setFoodTypeId(result.canonical_dish.food_type?.id ?? null)
         setDishes(result.dishes)
-        setTotalRestaurants(result.total)
+        setTotalBrands(result.total)
         setAverageRating(result.average_rating)
         setPriceMin(result.min_price_bdt)
         setPriceMax(result.max_price_bdt)
@@ -64,7 +63,7 @@ export default function DishCompare() {
       .catch((err) => {
         setError(err instanceof Error ? err.message : String(err))
         setDishes([])
-        setTotalRestaurants(0)
+        setTotalBrands(0)
       })
       .finally(() => setLoading(false))
   }, [canonicalDishId, page])
@@ -76,7 +75,7 @@ export default function DishCompare() {
 
   const compareCardImages = useMemo(() => {
     const seenProductUrls = new Set<string>()
-    return dishes.map((dish) => resolveCompareCardImages(dish, seenProductUrls))
+    return dishes.map((dish) => resolveBrandDishCardImages(dish, seenProductUrls))
   }, [dishes])
 
   return (
@@ -103,7 +102,7 @@ export default function DishCompare() {
                 <div>
                   <h1>{dishName}</h1>
                   <p className="muted dish-compare-page__subtitle">
-                    {totalRestaurants} restaurant{totalRestaurants !== 1 ? 's' : ''}
+                    {totalBrands} brand{totalBrands !== 1 ? 's' : ''}
                     {priceRange ? ` · ${priceRange}` : ''}
                     {foodTypeName ? ` · ${foodTypeName}` : ''}
                   </p>
@@ -113,18 +112,16 @@ export default function DishCompare() {
                 )}
               </header>
 
-              {totalRestaurants === 0 ? (
-                <p className="empty">No restaurant variants found for this dish.</p>
+              {totalBrands === 0 ? (
+                <p className="empty">No brand variants found for this dish.</p>
               ) : (
                 <>
                   <ul className="dish-compare-list">
                     {dishes.map((dish, index) => (
                       <DishCompareRow
-                        key={dish.id}
+                        key={brandDishKey(dish)}
                         dish={dish}
                         priority={index < 4}
-                        foodTypeId={foodTypeId}
-                        category={foodTypeName}
                         imageUrl={compareCardImages[index]?.imageUrl}
                         fallbackUrl={compareCardImages[index]?.fallbackUrl}
                       />
@@ -133,7 +130,7 @@ export default function DishCompare() {
                   <PaginationControls
                     page={page}
                     pageSize={COMPARE_PAGE_SIZE}
-                    total={totalRestaurants}
+                    total={totalBrands}
                     onPageChange={setPage}
                     loading={loading}
                   />

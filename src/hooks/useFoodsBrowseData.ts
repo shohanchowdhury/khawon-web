@@ -4,7 +4,7 @@ import {
   searchDishes,
 } from '@/api/client'
 import { POSTER_FOODS } from '@/config/featuredFoods'
-import type { CanonicalDishMatch, FoodTypePopularOut } from '@/types/api'
+import type { BrandDishOut, CanonicalDishMatch, FoodTypePopularOut } from '@/types/api'
 
 const SEED_QUERIES = POSTER_FOODS.map((food) => food.name)
 export const DISH_BROWSE_PAGE_SIZE = 12
@@ -40,6 +40,7 @@ export interface FoodsBrowseData {
   featuredLoading: boolean
   featuredError: string
   canonicalDishes: CanonicalDishMatch[]
+  brandDishes: BrandDishOut[]
   dishesTotal: number
   dishesLoading: boolean
   dishesError: string
@@ -63,6 +64,7 @@ export function useFoodsBrowseData(
   const [featuredError, setFeaturedError] = useState('')
 
   const [canonicalDishes, setCanonicalDishes] = useState<CanonicalDishMatch[]>([])
+  const [brandDishes, setBrandDishes] = useState<BrandDishOut[]>([])
   const [dishesTotal, setDishesTotal] = useState(0)
   const [dishesLoading, setDishesLoading] = useState(false)
   const [dishesError, setDishesError] = useState('')
@@ -121,6 +123,7 @@ export function useFoodsBrowseData(
 
     if (!effectiveQuery) {
       setCanonicalDishes([])
+      setBrandDishes([])
       setDishesTotal(0)
       setDishesLoading(false)
       setDishesError('')
@@ -136,11 +139,13 @@ export function useFoodsBrowseData(
     })
       .then((result) => {
         setCanonicalDishes(result.canonical_matches)
+        setBrandDishes(result.dishes)
         setDishesTotal(result.total)
       })
       .catch((err) => {
         setDishesError(err instanceof Error ? err.message : String(err))
         setCanonicalDishes([])
+        setBrandDishes([])
         setDishesTotal(0)
       })
       .finally(() => setDishesLoading(false))
@@ -154,6 +159,7 @@ export function useFoodsBrowseData(
     featuredLoading,
     featuredError,
     canonicalDishes,
+    brandDishes,
     dishesTotal,
     dishesLoading,
     dishesError,
