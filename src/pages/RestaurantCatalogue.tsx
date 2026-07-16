@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getRestaurantCatalogue } from '@/api/client'
+import { getRestaurants } from '@/api/client'
 import type { BrandListOut } from '@/types/api'
 import PageScroll from '@/components/PageScroll'
 import PaginationControls from '@/components/PaginationControls'
@@ -29,7 +29,7 @@ export default function RestaurantCatalogue() {
   useEffect(() => {
     setLoading(true)
     setError('')
-    getRestaurantCatalogue(debouncedQuery, {
+    getRestaurants(debouncedQuery, {
       offset: page * CATALOGUE_PAGE_SIZE,
       limit: CATALOGUE_PAGE_SIZE,
     })

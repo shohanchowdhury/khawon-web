@@ -14,14 +14,14 @@ import {
 
 interface BrandMenuSectionProps {
   dishes: BrandDishOut[]
-  chainId: number
+  brandSlug: string
   loading?: boolean
   initialFoodTypeId?: number
 }
 
 export default function BrandMenuSection({
   dishes,
-  chainId,
+  brandSlug,
   loading = false,
   initialFoodTypeId,
 }: BrandMenuSectionProps) {
@@ -99,7 +99,7 @@ export default function BrandMenuSection({
           const foodTypeId = resolveBrandDishFoodTypeId(dish)
           const linkTarget =
             foodTypeId != null
-              ? buildBrandDishLink(chainId, foodTypeId, dish.slug)
+              ? buildBrandDishLink(brandSlug, foodTypeId, dish.slug)
               : null
 
           const card = (

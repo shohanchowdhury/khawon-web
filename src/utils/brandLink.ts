@@ -1,13 +1,13 @@
-export function buildBrandLink(chainId: number): string {
-  return `/restaurant/${chainId}`
+export function buildBrandLink(slug: string): string {
+  return `/restaurants/${encodeURIComponent(slug)}`
 }
 
 export function buildBrandDishLink(
-  chainId: number,
-  foodTypeId: number,
   slug: string,
+  foodTypeId: number,
+  dishSlug: string,
 ): string {
-  return `/restaurant/${chainId}/dishes/${foodTypeId}/${encodeURIComponent(slug)}`
+  return `/restaurants/${encodeURIComponent(slug)}/dishes/${foodTypeId}/${encodeURIComponent(dishSlug)}`
 }
 
 export function brandDishKey(dish: {

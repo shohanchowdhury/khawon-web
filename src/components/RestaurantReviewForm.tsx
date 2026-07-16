@@ -6,14 +6,14 @@ import type { RestaurantSummaryOut } from '@/types/api'
 import { getBranchLocationLabel } from '@/utils/brandLink'
 
 interface RestaurantReviewFormProps {
-  chainId: number
+  brandSlug: string
   branches: RestaurantSummaryOut[]
   brandName?: string
   onSubmitted?: () => void
 }
 
 export default function RestaurantReviewForm({
-  chainId,
+  brandSlug,
   branches,
   brandName,
   onSubmitted,
@@ -58,7 +58,7 @@ export default function RestaurantReviewForm({
     setError('')
 
     try {
-      await submitRestaurantReview(chainId, {
+      await submitRestaurantReview(brandSlug, {
         branch_id: branchId,
         rating,
         comment: comment.trim() || undefined,

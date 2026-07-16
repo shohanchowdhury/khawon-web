@@ -67,6 +67,7 @@ export interface CanonicalDishMatch extends CanonicalDishOut {
 
 export interface BrandOut {
   id: number
+  slug: string
   name: string
 }
 
@@ -109,6 +110,7 @@ export interface BrandDishDetailOut extends BrandDishOut {
 
 export interface BrandDetailOut {
   id: number
+  slug: string
   name: string
   branch_count: number
   branches: RestaurantSummaryOut[]

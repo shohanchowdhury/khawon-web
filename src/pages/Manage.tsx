@@ -259,10 +259,10 @@ export default function Manage() {
   const [restaurantPhotoEditorId, setRestaurantPhotoEditorId] = useState<number | null>(null)
 
   useEffect(() => {
-    Promise.all([getFoodCatalogue(), listBranches(), listFoodTypes()])
-      .then(([foodList, restaurantList, typeList]) => {
+    Promise.all([getFoodCatalogue(), listBranches('', { limit: 500 }), listFoodTypes()])
+      .then(([foodList, branchResult, typeList]) => {
         setFoods(foodList)
-        setRestaurants(restaurantList)
+        setRestaurants(branchResult.branches)
         setFoodTypes(typeList)
       })
       .catch((err) => setError(err instanceof Error ? err.message : String(err)))

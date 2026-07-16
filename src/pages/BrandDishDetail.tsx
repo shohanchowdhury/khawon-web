@@ -14,10 +14,10 @@ import {
 } from '@/utils/formatPriceBdt'
 
 export default function BrandDishDetail() {
-  const { id, foodTypeId, slug } = useParams<{
-    id: string
-    foodTypeId: string
+  const { slug, foodTypeId, dishSlug } = useParams<{
     slug: string
+    foodTypeId: string
+    dishSlug: string
   }>()
   const [dish, setDish] = useState<BrandDishDetailOut | null>(null)
   const [reviews, setReviews] = useState<ReviewOut[]>([])
@@ -48,7 +48,7 @@ export default function BrandDishDetail() {
   )
 
   useEffect(() => {
-    if (!id || !foodTypeId || !slug) {
+    if (!slug || !foodTypeId || !dishSlug) {
       setLoading(false)
       setError('Missing dish reference.')
       return
@@ -57,7 +57,7 @@ export default function BrandDishDetail() {
     setLoading(true)
     setError('')
 
-    getRestaurantDish(id, foodTypeId, slug)
+    getRestaurantDish(slug, foodTypeId, dishSlug)
       .then((detail) => {
         setDish(detail)
         loadReviews(detail)
@@ -68,7 +68,7 @@ export default function BrandDishDetail() {
         setReviews([])
       })
       .finally(() => setLoading(false))
-  }, [id, foodTypeId, slug, loadReviews])
+  }, [slug, foodTypeId, dishSlug, loadReviews])
 
   function handleReviewSubmitted() {
     if (dish) loadReviews(dish)
@@ -80,7 +80,7 @@ export default function BrandDishDetail() {
       ? formatBranchAvailability(dish.branch_count, dish.brand_branch_total)
       : null
 
-  const backHref = dish ? buildBrandLink(dish.brand.id) : '/foods'
+  const backHref = dish ? buildBrandLink(dish.brand.slug) : '/foods'
   const backLabel = dish ? `← Back to ${dish.brand.name}` : '← Back to foods'
 
   return (

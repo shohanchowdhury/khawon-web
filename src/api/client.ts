@@ -9,6 +9,7 @@ import type {
   RestaurantCreatePayload,
   RestaurantPhotoUpdatePayload,
   RestaurantCatalogueResult,
+  BranchListResult,
   BranchResolveOut,
   BrandListOut,
   ReviewCreate,
@@ -137,12 +138,12 @@ export function compareDish(
 }
 
 export function getRestaurantDish(
-  chainId: number | string,
-  foodTypeId: number | string,
   slug: string,
+  foodTypeId: number | string,
+  dishSlug: string,
 ): Promise<BrandDishDetailOut> {
   return request(
-    `/restaurants/${chainId}/dishes/${foodTypeId}/${encodeURIComponent(slug)}`,
+    `/restaurants/${encodeURIComponent(slug)}/dishes/${foodTypeId}/${encodeURIComponent(dishSlug)}`,
   )
 }
 
@@ -161,8 +162,8 @@ export function getDishReviews(
   return request(`/dishes/${id}/reviews${query ? `?${query}` : ''}`)
 }
 
-export function getRestaurant(id: number | string): Promise<BrandDetailOut> {
-  return request(`/restaurants/${id}`)
+export function getRestaurant(slug: string): Promise<BrandDetailOut> {
+  return request(`/restaurants/${encodeURIComponent(slug)}`)
 }
 
 export function resolveBranch(branchId: number | string): Promise<BranchResolveOut> {
@@ -170,18 +171,18 @@ export function resolveBranch(branchId: number | string): Promise<BranchResolveO
 }
 
 export function getRestaurantReviews(
-  id: number | string,
+  slug: string,
   options: { offset?: number; limit?: number } = {},
 ): Promise<RestaurantReviewListResult> {
   const params = new URLSearchParams()
   if (options.offset != null) params.set('offset', String(options.offset))
   if (options.limit != null) params.set('limit', String(options.limit))
   const query = params.toString()
-  return request(`/restaurants/${id}/reviews${query ? `?${query}` : ''}`)
+  return request(`/restaurants/${encodeURIComponent(slug)}/reviews${query ? `?${query}` : ''}`)
 }
 
-export function getRestaurantMenu(id: number | string): Promise<BrandDishOut[]> {
-  return request(`/restaurants/${id}/menu`)
+export function getRestaurantMenu(slug: string): Promise<BrandDishOut[]> {
+  return request(`/restaurants/${encodeURIComponent(slug)}/menu`)
 }
 
 /** @deprecated Use getRestaurantMenu — kept for branch admin inspection. */
@@ -190,10 +191,10 @@ export function getBranchDishes(branchId: number | string): Promise<DishOut[]> {
 }
 
 export function submitRestaurantReview(
-  restaurantId: number | string,
+  slug: string,
   data: RestaurantReviewCreate,
 ): Promise<RestaurantReviewOut> {
-  return request(`/restaurants/${restaurantId}/reviews`, {
+  return request(`/restaurants/${encodeURIComponent(slug)}/reviews`, {
     method: 'POST',
     body: JSON.stringify(data),
   })
@@ -235,15 +236,19 @@ export function getFoodCatalogue(query = ''): Promise<FoodTypePopularOut[]> {
   return request(`/food-types/catalogue${params}`)
 }
 
-export function listBranches(): Promise<RestaurantSummaryOut[]> {
-  return request('/branches/')
+export function listBranches(
+  query = '',
+  options: { offset?: number; limit?: number } = {},
+): Promise<BranchListResult> {
+  const params = new URLSearchParams()
+  if (query.trim()) params.set('q', query.trim())
+  if (options.offset != null) params.set('offset', String(options.offset))
+  if (options.limit != null) params.set('limit', String(options.limit))
+  const qs = params.toString()
+  return request(`/branches/${qs ? `?${qs}` : ''}`)
 }
 
-export function listRestaurants(): Promise<BrandListOut[]> {
-  return request('/restaurants/')
-}
-
-export function getRestaurantCatalogue(
+export function getRestaurants(
   query = '',
   options: { offset?: number; limit?: number } = {},
 ): Promise<RestaurantCatalogueResult> {
@@ -252,7 +257,7 @@ export function getRestaurantCatalogue(
   if (options.offset != null) params.set('offset', String(options.offset))
   if (options.limit != null) params.set('limit', String(options.limit))
   const qs = params.toString()
-  return request(`/restaurants/catalogue${qs ? `?${qs}` : ''}`)
+  return request(`/restaurants/${qs ? `?${qs}` : ''}`)
 }
 
 export function searchPlaces(query: string, area = ''): Promise<PlaceSearchResult[]> {

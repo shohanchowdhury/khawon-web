@@ -25,7 +25,7 @@ export default function RestaurantCard({
 
   return (
     <Link
-      to={buildRestaurantLink(restaurant.id, { foodTypeId, searchQuery })}
+      to={buildRestaurantLink(restaurant.slug, { foodTypeId, searchQuery })}
       className={`restaurant-card${showImage ? ' restaurant-card--with-image' : ''}`}
     >
       {showImage && (

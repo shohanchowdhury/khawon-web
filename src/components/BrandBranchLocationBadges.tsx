@@ -7,6 +7,7 @@ import { buildRestaurantLink } from '@/utils/restaurantLink'
 interface BrandBranchLocationBadgesProps {
   branches: BrandBranchOut[]
   brandName: string
+  brandSlug?: string
   showPrice?: boolean
   linkable?: boolean
 }
@@ -14,6 +15,7 @@ interface BrandBranchLocationBadgesProps {
 export default function BrandBranchLocationBadges({
   branches,
   brandName,
+  brandSlug,
   showPrice = false,
   linkable = false,
 }: BrandBranchLocationBadgesProps) {
@@ -45,11 +47,11 @@ export default function BrandBranchLocationBadges({
           </>
         )
 
-        if (linkable) {
+        if (linkable && brandSlug) {
           return (
             <Link
               key={branch.product_id}
-              to={buildRestaurantLink(branch.restaurant_id)}
+              to={buildRestaurantLink(brandSlug)}
               className={className}
               aria-label={ariaLabel}
             >

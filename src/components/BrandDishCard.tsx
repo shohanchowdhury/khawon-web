@@ -31,8 +31,8 @@ export default function BrandDishCard({
   const primaryImageUrl = imageUrl !== undefined ? imageUrl : dish.image_url
   const linkTarget =
     foodTypeId != null
-      ? buildBrandDishLink(dish.brand.id, foodTypeId, dish.slug)
-      : buildBrandLink(dish.brand.id)
+      ? buildBrandDishLink(dish.brand.slug, foodTypeId, dish.slug)
+      : buildBrandLink(dish.brand.slug)
 
   return (
     <Link to={linkTarget} className="brand-dish-card">

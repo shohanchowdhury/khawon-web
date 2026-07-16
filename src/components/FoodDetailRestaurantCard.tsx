@@ -26,7 +26,7 @@ export default function FoodDetailRestaurantCard({
 
   return (
     <Link
-      to={buildRestaurantLink(restaurant.id, {
+      to={buildRestaurantLink(restaurant.slug, {
         foodTypeId,
         category: foodName,
         searchQuery,

@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Navigate, useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import {
   getRestaurant,
   getRestaurantMenu,
   getRestaurantReviews,
-  resolveBranch,
 } from '@/api/client'
 import type { BrandDetailOut, BrandDishOut, RestaurantReviewOut } from '@/types/api'
 import BrandMenuSection from '@/components/BrandMenuSection'
@@ -16,14 +15,13 @@ import useScrolledPast from '@/hooks/useScrolledPast'
 import { useNavBarOverrides } from '@/context/NavBarContext'
 
 export default function RestaurantDetail() {
-  const { id } = useParams<{ id: string }>()
+  const { slug } = useParams<{ slug: string }>()
   const [searchParams] = useSearchParams()
   const { setOverrides } = useNavBarOverrides()
   const foodTypeId = Number(searchParams.get('foodTypeId'))
   const categoryParam = searchParams.get('category')?.trim() || ''
   const searchQuery = searchParams.get('q') || ''
 
-  const [redirectChainId, setRedirectChainId] = useState<number | null>(null)
   const [backAnchor, setBackAnchor] = useState<HTMLDivElement | null>(null)
   const [titleAnchor, setTitleAnchor] = useState<HTMLDivElement | null>(null)
   const [brand, setBrand] = useState<BrandDetailOut | null>(null)
@@ -35,25 +33,24 @@ export default function RestaurantDetail() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (!id) {
+    if (!slug) {
       setLoading(false)
-      setError('Missing restaurant id.')
+      setError('Missing restaurant slug.')
       return
     }
 
-    const restaurantId = id
+    const brandSlug = slug
     let cancelled = false
 
-    async function resolveAndLoad() {
+    async function loadBrand() {
       setLoading(true)
       setMenuLoading(true)
       setError('')
-      setRedirectChainId(null)
 
       try {
         const [detail, reviewResult] = await Promise.all([
-          getRestaurant(restaurantId),
-          getRestaurantReviews(restaurantId),
+          getRestaurant(brandSlug),
+          getRestaurantReviews(brandSlug),
         ])
         if (cancelled) return
         setBrand(detail)
@@ -61,7 +58,7 @@ export default function RestaurantDetail() {
         setReviewTotal(reviewResult.total)
         setLoading(false)
 
-        getRestaurantMenu(restaurantId)
+        getRestaurantMenu(brandSlug)
           .then((menu) => {
             if (!cancelled) setDishes(menu)
           })
@@ -71,31 +68,24 @@ export default function RestaurantDetail() {
           .finally(() => {
             if (!cancelled) setMenuLoading(false)
           })
-        return
-      } catch {
-        // Not a chain id — try old branch URL redirect.
-      }
-
-      try {
-        const branch = await resolveBranch(restaurantId)
+      } catch (err) {
         if (!cancelled) {
-          setRedirectChainId(branch.chain_id)
-        }
-      } catch {
-        if (!cancelled) {
-          setError('Restaurant not found.')
+          setError(err instanceof Error ? err.message : String(err))
+          setBrand(null)
+          setDishes([])
+          setReviews([])
           setLoading(false)
           setMenuLoading(false)
         }
       }
     }
 
-    void resolveAndLoad()
+    void loadBrand()
 
     return () => {
       cancelled = true
     }
-  }, [id])
+  }, [slug])
 
   const categoryName = categoryParam || undefined
 
@@ -142,17 +132,13 @@ export default function RestaurantDetail() {
 
   function handleRestaurantReviewSubmitted() {
     if (!brand) return
-    getRestaurantReviews(brand.id)
+    getRestaurantReviews(brand.slug)
       .then((result) => {
         setReviews(result.reviews)
         setReviewTotal(result.total)
       })
       .catch(() => undefined)
-    getRestaurant(brand.id).then(setBrand).catch(() => undefined)
-  }
-
-  if (redirectChainId != null) {
-    return <Navigate to={`/restaurant/${redirectChainId}`} replace />
+    getRestaurant(brand.slug).then(setBrand).catch(() => undefined)
   }
 
   const heroImageUrl =
@@ -185,7 +171,7 @@ export default function RestaurantDetail() {
 
               <BrandMenuSection
                 dishes={dishes}
-                chainId={brand.id}
+                brandSlug={brand.slug}
                 loading={menuLoading}
                 initialFoodTypeId={Number.isFinite(foodTypeId) ? foodTypeId : undefined}
               />
@@ -220,7 +206,7 @@ export default function RestaurantDetail() {
                 )}
 
                 <RestaurantReviewForm
-                  chainId={brand.id}
+                  brandSlug={brand.slug}
                   branches={brand.branches}
                   brandName={brand.name}
                   onSubmitted={handleRestaurantReviewSubmitted}

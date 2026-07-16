@@ -1,12 +1,14 @@
-/** Mirrors khawon-api/schemas.py — brand browse + legacy branch admin shapes */
+/** Mirrors khawon-api/schemas.py — brand browse + branch admin shapes */
 
 import type { FoodTypeOut } from './foodType'
+import type { RestaurantSummaryOut } from './dish'
 
 export type RestaurantRatingSource = 'khawon' | 'foodpanda' | null
 
-/** One brand in restaurant browse — id is chain_id everywhere public. */
+/** One brand in restaurant browse — slug is the URL key; id is chain_id (POST only). */
 export interface BrandListOut {
   id: number
+  slug: string
   name: string
   branch_count: number
   areas: string[]
@@ -18,39 +20,10 @@ export interface BrandListOut {
   display_review_count: number
 }
 
-/** Legacy branch row shape (admin/contribute via /branches/*). */
-export interface RestaurantOut {
-  id: number
-  name: string
-  area: string | null
-  address: string | null
-  phone: string | null
-  google_maps_url: string | null
-  website_url: string | null
-  google_place_id: string | null
-  image_url: string | null
-  food_types: FoodTypeOut[]
-  average_rating: number | null
-  review_count: number
-  display_rating: number | null
-  display_review_count: number
-  display_rating_source: RestaurantRatingSource
-  match_status?: string | null
-  source_restaurant_code?: string | null
-  chain_name?: string | null
-  chain_code?: string | null
-  budget?: number | null
-  foodpanda_rating?: number | null
-  foodpanda_review_number?: number | null
-  raw_cuisines?: string[] | null
-  logo_url?: string | null
-  latitude?: number | null
-  longitude?: number | null
-}
-
 export interface BranchResolveOut {
   id: number
   chain_id: number
+  chain_slug: string
   name: string
   area: string | null
   address: string | null
@@ -74,8 +47,17 @@ export interface RestaurantPhotoUpdatePayload {
   image?: File
 }
 
+/** Paginated brand browse — response of GET /restaurants. */
 export interface RestaurantCatalogueResult {
   restaurants: BrandListOut[]
+  total: number
+  offset: number
+  limit: number
+}
+
+/** Paginated branch list — response of GET /branches (manage screens). */
+export interface BranchListResult {
+  branches: RestaurantSummaryOut[]
   total: number
   offset: number
   limit: number

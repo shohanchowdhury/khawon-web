@@ -1,5 +1,5 @@
 export function buildRestaurantLink(
-  restaurantId: number,
+  slug: string,
   options?: { foodTypeId?: number; category?: string; searchQuery?: string },
 ): string {
   const params = new URLSearchParams()
@@ -7,5 +7,5 @@ export function buildRestaurantLink(
   if (options?.category?.trim()) params.set('category', options.category.trim())
   if (options?.searchQuery) params.set('q', options.searchQuery)
   const query = params.toString()
-  return `/restaurant/${restaurantId}${query ? `?${query}` : ''}`
+  return `/restaurants/${encodeURIComponent(slug)}${query ? `?${query}` : ''}`
 }

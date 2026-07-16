@@ -12,7 +12,7 @@ export type { FoodSubTypeOut, FoodSubTypeListResult } from './foodSubType'
 export type {
   BrandListOut,
   BranchResolveOut,
-  RestaurantOut,
+  BranchListResult,
   RestaurantCreatePayload,
   RestaurantPhotoUpdatePayload,
   RestaurantCatalogueResult,

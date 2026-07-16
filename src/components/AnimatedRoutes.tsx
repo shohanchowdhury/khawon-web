@@ -7,7 +7,12 @@ import FoodDetail from '@/pages/FoodDetail'
 import Foods from '@/pages/Foods'
 import DishCompare from '@/pages/DishCompare'
 import BrandDishDetail from '@/pages/BrandDishDetail'
-import { LegacyBrandDishRedirect, LegacyBrandRedirect } from '@/components/LegacyBrandRedirects'
+import {
+  LegacyBrandDishRedirect,
+  LegacyBrandRedirect,
+  LegacyRestaurantDishRedirect,
+  LegacyRestaurantRedirect,
+} from '@/components/LegacyBrandRedirects'
 import SearchResults from '@/pages/SearchResults'
 import RestaurantDetail from '@/pages/RestaurantDetail'
 import Login from '@/pages/Login'
@@ -47,6 +52,11 @@ export default function AnimatedRoutes() {
                 <Route path="/food/:id" element={<FoodDetail />} />
                 <Route path="/catalogue" element={<Navigate to="/foods" replace />} />
                 <Route path="/restaurants" element={<RestaurantCatalogue />} />
+                <Route
+                  path="/restaurants/:slug/dishes/:foodTypeId/:dishSlug"
+                  element={<BrandDishDetail />}
+                />
+                <Route path="/restaurants/:slug" element={<RestaurantDetail />} />
                 <Route path="/dishes/compare/:canonicalDishId" element={<DishCompare />} />
                 <Route path="/brands/:chainId" element={<LegacyBrandRedirect />} />
                 <Route
@@ -55,10 +65,10 @@ export default function AnimatedRoutes() {
                 />
                 <Route
                   path="/restaurant/:id/dishes/:foodTypeId/:slug"
-                  element={<BrandDishDetail />}
+                  element={<LegacyRestaurantDishRedirect />}
                 />
+                <Route path="/restaurant/:id" element={<LegacyRestaurantRedirect />} />
                 <Route path="/search" element={<SearchResults />} />
-                <Route path="/restaurant/:id" element={<RestaurantDetail />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/contribute" element={<Navigate to="/manage" replace />} />
