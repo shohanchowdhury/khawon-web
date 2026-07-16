@@ -160,7 +160,6 @@ export default function RestaurantDetail() {
               <RestaurantDetailHero
                 brand={brand}
                 heroImageUrl={heroImageUrl}
-                reviewCount={reviewTotal}
                 backHref={backHref}
                 backLabel={backLabel}
                 backInNav={backInNav}

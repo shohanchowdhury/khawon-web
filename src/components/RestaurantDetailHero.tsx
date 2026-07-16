@@ -12,7 +12,6 @@ import { getGoogleMapsUrl } from '@/utils/restaurantDisplay'
 interface RestaurantDetailHeroProps {
   brand: BrandDetailOut
   heroImageUrl: string | null
-  reviewCount: number
   backHref: string | null
   backLabel: string
   backInNav?: boolean
@@ -24,7 +23,6 @@ interface RestaurantDetailHeroProps {
 export default function RestaurantDetailHero({
   brand,
   heroImageUrl,
-  reviewCount,
   backHref,
   backLabel,
   backInNav = false,
@@ -83,7 +81,10 @@ export default function RestaurantDetailHero({
               )}
               <DetailMeta
                 rating={brand.display_rating}
-                reviewCount={reviewCount}
+                // must come from the brand, like rating/source above: passing
+                // the khawon review total here renders a foodpanda rating next
+                // to "0 reviews".
+                reviewCount={brand.display_review_count}
                 ratingSource={brand.display_rating_source}
               />
             </DetailHeader>

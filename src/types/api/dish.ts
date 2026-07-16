@@ -115,6 +115,9 @@ export interface BrandDetailOut {
   branch_count: number
   branches: RestaurantSummaryOut[]
   display_rating: number | null
+  /** Count BEHIND display_rating, from the same source. NOT the khawon review
+   *  total — pairing display_rating with that renders "4.9 / 0 reviews". */
+  display_review_count: number
   display_rating_source: RestaurantRatingSource
 }
 
