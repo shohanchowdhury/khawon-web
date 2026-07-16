@@ -1,16 +1,18 @@
 import { motion } from 'framer-motion'
 import type { Ref } from 'react'
 import { Link } from 'react-router-dom'
-import type { RestaurantOut } from '@/types/api'
+import type { BrandDetailOut } from '@/types/api'
+import BrandLocationBadges from '@/components/BrandLocationBadges'
 import { NavButton } from '@/components/NavButton'
 import DetailHeader from '@/components/DetailHeader'
 import DetailMeta from '@/components/DetailMeta'
 import FoodImage from '@/components/FoodImage'
-import { getGoogleMapsUrl, getRestaurantDisplayRating } from '@/utils/restaurantDisplay'
+import { getGoogleMapsUrl } from '@/utils/restaurantDisplay'
 
 interface RestaurantDetailHeroProps {
-  restaurant: RestaurantOut
-  editHref?: string
+  brand: BrandDetailOut
+  heroImageUrl: string | null
+  reviewCount: number
   backHref: string | null
   backLabel: string
   backInNav?: boolean
@@ -20,8 +22,9 @@ interface RestaurantDetailHeroProps {
 }
 
 export default function RestaurantDetailHero({
-  restaurant,
-  editHref,
+  brand,
+  heroImageUrl,
+  reviewCount,
   backHref,
   backLabel,
   backInNav = false,
@@ -29,9 +32,6 @@ export default function RestaurantDetailHero({
   titleInNav = false,
   titleAnchorRef,
 }: RestaurantDetailHeroProps) {
-  const display = getRestaurantDisplayRating(restaurant)
-  const mapsUrl = getGoogleMapsUrl(restaurant)
-
   function scrollToMenu() {
     document.getElementById('restaurant-menu')?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -46,9 +46,8 @@ export default function RestaurantDetailHero({
       >
         <div className="food-detail-hero__media">
           <FoodImage
-            name={restaurant.name}
-            imageUrl={restaurant.image_url}
-            fallbackUrl={restaurant.logo_url}
+            name={brand.name}
+            imageUrl={heroImageUrl}
             className="food-detail-hero__image"
             priority
           />
@@ -71,37 +70,46 @@ export default function RestaurantDetailHero({
 
           <div className="food-detail-hero__body">
             <DetailHeader
-              title={restaurant.name}
-              editHref={editHref}
+              title={brand.name}
               titleClassName="food-detail-hero__title"
               titleAnchorRef={titleAnchorRef}
               titleInNav={titleInNav}
               titleLayoutId="restaurant-detail-title"
             >
-              {restaurant.area && <span className="badge badge--large">{restaurant.area}</span>}
+              {brand.branch_count > 1 && (
+                <span className="badge badge--large">
+                  {brand.branch_count} locations
+                </span>
+              )}
               <DetailMeta
-                rating={display.rating}
-                reviewCount={display.reviewCount}
-                ratingSource={display.source}
+                rating={brand.display_rating}
+                reviewCount={reviewCount}
+                ratingSource={brand.display_rating_source}
               />
             </DetailHeader>
 
+            <BrandLocationBadges branches={brand.branches} brandName={brand.name} />
+
             <div className="restaurant-detail-hero__links">
-              {restaurant.address && (
-                <p className="restaurant-detail-hero__meta">{restaurant.address}</p>
-              )}
-              {restaurant.phone && (
-                <p className="restaurant-detail-hero__meta">
-                  <a href={`tel:${restaurant.phone}`}>{restaurant.phone}</a>
-                </p>
-              )}
-              {mapsUrl && (
-                <p className="restaurant-detail-hero__meta">
-                  <a href={mapsUrl} target="_blank" rel="noreferrer">
-                    Google Maps
-                  </a>
-                </p>
-              )}
+              {brand.branches.map((branch) => {
+                const mapsUrl = getGoogleMapsUrl(branch)
+                const label = branch.area || branch.name
+                return (
+                  <div key={branch.id} className="restaurant-detail-hero__branch">
+                    <strong>{label}</strong>
+                    {branch.address && (
+                      <p className="restaurant-detail-hero__meta">{branch.address}</p>
+                    )}
+                    {mapsUrl && (
+                      <p className="restaurant-detail-hero__meta">
+                        <a href={mapsUrl} target="_blank" rel="noreferrer">
+                          Google Maps
+                        </a>
+                      </p>
+                    )}
+                  </div>
+                )
+              })}
             </div>
 
             <NavButton

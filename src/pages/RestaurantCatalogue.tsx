@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getRestaurantCatalogue } from '@/api/client'
-import type { RestaurantOut } from '@/types/api'
+import type { BrandListOut } from '@/types/api'
 import PageScroll from '@/components/PageScroll'
 import PaginationControls from '@/components/PaginationControls'
 import RestaurantCard from '@/components/RestaurantCard'
@@ -12,7 +12,7 @@ export default function RestaurantCatalogue() {
   const [query, setQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [page, setPage] = useState(0)
-  const [restaurants, setRestaurants] = useState<RestaurantOut[]>([])
+  const [restaurants, setRestaurants] = useState<BrandListOut[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')

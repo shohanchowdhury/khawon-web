@@ -6,13 +6,13 @@ import {
   searchFoodImages,
   searchPlaces,
 } from '@/api/client'
-import type { FoodImageSearchResult, FoodTypeOut, PlaceSearchResult, RestaurantOut } from '@/types/api'
+import type { FoodImageSearchResult, FoodTypeOut, PlaceSearchResult, RestaurantSummaryOut } from '@/types/api'
 import FoodPhotoPicker from '@/components/FoodPhotoPicker'
 import RestaurantPhotoPicker from '@/components/RestaurantPhotoPicker'
 
 interface ContributeFormsProps {
   onFoodCreated?: (food: FoodTypeOut) => void
-  onRestaurantCreated?: (restaurant: RestaurantOut) => void
+  onRestaurantCreated?: (restaurant: RestaurantSummaryOut) => void
 }
 
 export default function ContributeForms({

@@ -1,9 +1,24 @@
-/** Mirrors khawon-api/schemas.py — RestaurantOut, RestaurantCreate */
+/** Mirrors khawon-api/schemas.py — brand browse + legacy branch admin shapes */
 
 import type { FoodTypeOut } from './foodType'
 
 export type RestaurantRatingSource = 'khawon' | 'foodpanda' | null
 
+/** One brand in restaurant browse — id is chain_id everywhere public. */
+export interface BrandListOut {
+  id: number
+  name: string
+  branch_count: number
+  areas: string[]
+  image_url: string | null
+  food_types: FoodTypeOut[]
+  cuisines: string[]
+  display_rating: number | null
+  display_rating_source: RestaurantRatingSource
+  display_review_count: number
+}
+
+/** Legacy branch row shape (admin/contribute via /branches/*). */
 export interface RestaurantOut {
   id: number
   name: string
@@ -33,6 +48,17 @@ export interface RestaurantOut {
   longitude?: number | null
 }
 
+export interface BranchResolveOut {
+  id: number
+  chain_id: number
+  name: string
+  area: string | null
+  address: string | null
+  phone: string | null
+  google_place_id: string | null
+  image_url: string | null
+}
+
 export interface RestaurantCreatePayload {
   name: string
   area?: string
@@ -49,7 +75,7 @@ export interface RestaurantPhotoUpdatePayload {
 }
 
 export interface RestaurantCatalogueResult {
-  restaurants: RestaurantOut[]
+  restaurants: BrandListOut[]
   total: number
   offset: number
   limit: number

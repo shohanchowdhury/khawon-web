@@ -1,77 +1,103 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
-import { getRestaurant, getRestaurantDishes, getRestaurantReviews } from '@/api/client'
-import { useAuth } from '@/context/AuthContext'
-import { useNavBarOverrides } from '@/context/NavBarContext'
-import type { DishOut, RestaurantOut, RestaurantReviewOut } from '@/types/api'
+import { useEffect, useState } from 'react'
+import { Navigate, useParams, useSearchParams } from 'react-router-dom'
+import {
+  getRestaurant,
+  getRestaurantMenu,
+  getRestaurantReviews,
+  resolveBranch,
+} from '@/api/client'
+import type { BrandDetailOut, BrandDishOut, RestaurantReviewOut } from '@/types/api'
+import BrandMenuSection from '@/components/BrandMenuSection'
 import PageScroll from '@/components/PageScroll'
 import RestaurantDetailHero from '@/components/RestaurantDetailHero'
-import RestaurantMenuSection from '@/components/RestaurantMenuSection'
 import RestaurantReviewForm from '@/components/RestaurantReviewForm'
-import ReviewForm from '@/components/ReviewForm'
 import StarRating from '@/components/StarRating'
 import useScrolledPast from '@/hooks/useScrolledPast'
+import { useNavBarOverrides } from '@/context/NavBarContext'
 
 export default function RestaurantDetail() {
   const { id } = useParams<{ id: string }>()
-  const { isAuthenticated } = useAuth()
-  const { setOverrides } = useNavBarOverrides()
   const [searchParams] = useSearchParams()
+  const { setOverrides } = useNavBarOverrides()
   const foodTypeId = Number(searchParams.get('foodTypeId'))
   const categoryParam = searchParams.get('category')?.trim() || ''
   const searchQuery = searchParams.get('q') || ''
 
+  const [redirectChainId, setRedirectChainId] = useState<number | null>(null)
   const [backAnchor, setBackAnchor] = useState<HTMLDivElement | null>(null)
   const [titleAnchor, setTitleAnchor] = useState<HTMLDivElement | null>(null)
-  const [restaurant, setRestaurant] = useState<RestaurantOut | null>(null)
-  const [dishes, setDishes] = useState<DishOut[]>([])
+  const [brand, setBrand] = useState<BrandDetailOut | null>(null)
+  const [dishes, setDishes] = useState<BrandDishOut[]>([])
   const [reviews, setReviews] = useState<RestaurantReviewOut[]>([])
+  const [reviewTotal, setReviewTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [menuLoading, setMenuLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const loadRestaurant = useCallback(() => {
-    if (!id) return
-    getRestaurant(id).then(setRestaurant).catch(() => setRestaurant(null))
-  }, [id])
-
-  const loadReviews = useCallback(() => {
-    if (!id) return
-    getRestaurantReviews(id)
-      .then((result) => setReviews(result.reviews))
-      .catch(() => setReviews([]))
-  }, [id])
-
   useEffect(() => {
-    if (!id) return
+    if (!id) {
+      setLoading(false)
+      setError('Missing restaurant id.')
+      return
+    }
 
-    setLoading(true)
-    setMenuLoading(true)
-    setError('')
+    const restaurantId = id
+    let cancelled = false
 
-    Promise.all([getRestaurant(id), getRestaurantReviews(id)])
-      .then(([r, reviewResult]) => {
-        setRestaurant(r)
+    async function resolveAndLoad() {
+      setLoading(true)
+      setMenuLoading(true)
+      setError('')
+      setRedirectChainId(null)
+
+      try {
+        const [detail, reviewResult] = await Promise.all([
+          getRestaurant(restaurantId),
+          getRestaurantReviews(restaurantId),
+        ])
+        if (cancelled) return
+        setBrand(detail)
         setReviews(reviewResult.reviews)
-      })
-      .catch((err) => setError(err instanceof Error ? err.message : String(err)))
-      .finally(() => setLoading(false))
+        setReviewTotal(reviewResult.total)
+        setLoading(false)
 
-    getRestaurantDishes(id)
-      .then(setDishes)
-      .catch(() => setDishes([]))
-      .finally(() => setMenuLoading(false))
+        getRestaurantMenu(restaurantId)
+          .then((menu) => {
+            if (!cancelled) setDishes(menu)
+          })
+          .catch(() => {
+            if (!cancelled) setDishes([])
+          })
+          .finally(() => {
+            if (!cancelled) setMenuLoading(false)
+          })
+        return
+      } catch {
+        // Not a chain id — try old branch URL redirect.
+      }
+
+      try {
+        const branch = await resolveBranch(restaurantId)
+        if (!cancelled) {
+          setRedirectChainId(branch.chain_id)
+        }
+      } catch {
+        if (!cancelled) {
+          setError('Restaurant not found.')
+          setLoading(false)
+          setMenuLoading(false)
+        }
+      }
+    }
+
+    void resolveAndLoad()
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
-  const activeFoodTypeId =
-    foodTypeId ||
-    restaurant?.food_types?.[0]?.id
-
-  const categoryName =
-    categoryParam ||
-    (activeFoodTypeId
-      ? restaurant?.food_types?.find((foodType) => foodType.id === activeFoodTypeId)?.name
-      : undefined)
+  const categoryName = categoryParam || undefined
 
   const backHref = categoryName
     ? `/foods?category=${encodeURIComponent(categoryName)}`
@@ -93,14 +119,14 @@ export default function RestaurantDetail() {
 
   const backInNav = useScrolledPast(backAnchor)
   const titleInNav = useScrolledPast(titleAnchor)
-  const showNavContext = Boolean(restaurant && (backInNav || titleInNav))
+  const showNavContext = Boolean(brand && (backInNav || titleInNav))
 
   useEffect(() => {
     setOverrides({
       showContext: showNavContext,
-      contextTitle: titleInNav ? restaurant?.name : undefined,
+      contextTitle: titleInNav ? brand?.name : undefined,
       contextBack:
-        restaurant && (backInNav || titleInNav)
+        brand && (backInNav || titleInNav)
           ? { href: backHref, label: '←', ariaLabel: navBackAriaLabel }
           : undefined,
     })
@@ -108,16 +134,29 @@ export default function RestaurantDetail() {
     backHref,
     backInNav,
     navBackAriaLabel,
-    restaurant,
+    brand,
     setOverrides,
     showNavContext,
     titleInNav,
   ])
 
   function handleRestaurantReviewSubmitted() {
-    loadReviews()
-    loadRestaurant()
+    if (!brand) return
+    getRestaurantReviews(brand.id)
+      .then((result) => {
+        setReviews(result.reviews)
+        setReviewTotal(result.total)
+      })
+      .catch(() => undefined)
+    getRestaurant(brand.id).then(setBrand).catch(() => undefined)
   }
+
+  if (redirectChainId != null) {
+    return <Navigate to={`/restaurant/${redirectChainId}`} replace />
+  }
+
+  const heroImageUrl =
+    brand?.branches.find((branch) => branch.image_url)?.image_url ?? null
 
   return (
     <div className="page restaurant-detail-page">
@@ -130,13 +169,12 @@ export default function RestaurantDetail() {
             </div>
           )}
 
-          {restaurant && (
+          {brand && (
             <>
               <RestaurantDetailHero
-                restaurant={restaurant}
-                editHref={
-                  isAuthenticated ? `/manage/restaurant/${restaurant.id}` : undefined
-                }
+                brand={brand}
+                heroImageUrl={heroImageUrl}
+                reviewCount={reviewTotal}
                 backHref={backHref}
                 backLabel={backLabel}
                 backInNav={backInNav}
@@ -145,8 +183,9 @@ export default function RestaurantDetail() {
                 titleAnchorRef={setTitleAnchor}
               />
 
-              <RestaurantMenuSection
+              <BrandMenuSection
                 dishes={dishes}
+                chainId={brand.id}
                 loading={menuLoading}
                 initialFoodTypeId={Number.isFinite(foodTypeId) ? foodTypeId : undefined}
               />
@@ -160,7 +199,15 @@ export default function RestaurantDetail() {
                     {reviews.map((review) => (
                       <li key={review.id} className="review-item">
                         <div className="review-item__header">
-                          <strong>{review.username}</strong>
+                          <div>
+                            {(review.branch_area || review.branch_name) && (
+                              <span className="review-item__branch muted">
+                                {review.branch_area || review.branch_name}
+                                {' · '}
+                              </span>
+                            )}
+                            <strong>{review.username}</strong>
+                          </div>
                           <StarRating rating={review.rating} size="sm" />
                         </div>
                         {review.comment && <p>{review.comment}</p>}
@@ -173,13 +220,11 @@ export default function RestaurantDetail() {
                 )}
 
                 <RestaurantReviewForm
-                  restaurantId={restaurant.id}
+                  chainId={brand.id}
+                  branches={brand.branches}
+                  brandName={brand.name}
                   onSubmitted={handleRestaurantReviewSubmitted}
                 />
-              </section>
-
-              <section className="reviews-section" id="dish-reviews">
-                <ReviewForm dishes={dishes} />
               </section>
             </>
           )}

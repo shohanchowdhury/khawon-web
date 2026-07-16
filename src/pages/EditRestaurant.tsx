@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import {
+  getBranchDishes,
   getPlaceDetails,
-  getRestaurant,
+  resolveBranch,
   searchPlaces,
   updateRestaurant,
 } from '@/api/client'
@@ -65,19 +66,30 @@ export default function EditRestaurant() {
   useEffect(() => {
     if (!id) return
 
-    getRestaurant(id)
-      .then((restaurant) => {
-        setName(restaurant.name)
-        setArea(restaurant.area || '')
-        setAddress(restaurant.address || '')
-        setPhone(restaurant.phone || '')
-        setGooglePlaceId(restaurant.google_place_id || '')
-        setCurrentImageUrl(restaurant.image_url)
-        setDerivedFoodTypes(restaurant.food_types.map((ft) => ft.name))
+    resolveBranch(id)
+      .then((branch) => {
+        setName(branch.name)
+        setArea(branch.area || '')
+        setAddress(branch.address || '')
+        setPhone(branch.phone || '')
+        setGooglePlaceId(branch.google_place_id || '')
+        setCurrentImageUrl(branch.image_url)
 
-        if (restaurant.google_place_id) {
-          void loadGooglePhotos(restaurant.google_place_id)
+        if (branch.google_place_id) {
+          void loadGooglePhotos(branch.google_place_id)
         }
+
+        return getBranchDishes(id)
+      })
+      .then((dishes) => {
+        const names = Array.from(
+          new Set(
+            dishes
+              .map((dish) => dish.food_type?.name)
+              .filter((name): name is string => Boolean(name)),
+          ),
+        ).sort()
+        setDerivedFoodTypes(names)
       })
       .catch((err) => setError(err instanceof Error ? err.message : String(err)))
       .finally(() => setPageLoading(false))

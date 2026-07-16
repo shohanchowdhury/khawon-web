@@ -5072,6 +5072,97 @@ button.quick-chips__pill {
   color: var(--red);
 }
 
+.brand-branch-badges--static .brand-branch-badges__chip--static {
+  cursor: default;
+  pointer-events: none;
+}
+
+.brand-branch-badges--static .brand-branch-badges__chip--static:hover {
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.brand-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.brand-menu-grid__card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.brand-menu-grid__card:hover {
+  border-color: color-mix(in srgb, var(--red) 35%, var(--border));
+  transform: translateY(-2px);
+}
+
+.brand-menu-grid__media {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.brand-menu-grid__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.brand-menu-grid__body {
+  padding: 0.85rem 1rem 1rem;
+}
+
+.brand-menu-grid__title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.brand-menu-grid__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.brand-menu-grid__price {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.brand-menu-grid__price-prefix {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.restaurant-detail-hero__branch {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.restaurant-detail-hero__branch:first-of-type {
+  margin-top: 1rem;
+}
+
+.restaurant-detail-hero__branch strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.review-item__branch {
+  font-weight: 600;
+}
+
 .brand-branch-list {
   list-style: none;
   margin: 0;

@@ -1,14 +1,15 @@
 import { Link } from 'react-router-dom'
-import type { RestaurantOut } from '@/types/api'
+import type { BrandListOut } from '@/types/api'
+import BrandAreaTags from '@/components/BrandAreaTags'
 import { getMockReviewHighlight } from '@/config/mockRestaurantReviewHighlights'
 import DetailMeta from '@/components/DetailMeta'
 import RestaurantThumb from '@/components/RestaurantThumb'
 import ReviewHighlightSummary from '@/components/ReviewHighlightSummary'
 import { buildRestaurantLink } from '@/utils/restaurantLink'
-import { getRestaurantDisplayRating } from '@/utils/restaurantDisplay'
+import { getBrandListDisplayRating } from '@/utils/restaurantDisplay'
 
 interface FoodDetailRestaurantCardProps {
-  restaurant: RestaurantOut
+  restaurant: BrandListOut
   foodTypeId?: number
   searchQuery?: string
   foodName: string
@@ -21,7 +22,7 @@ export default function FoodDetailRestaurantCard({
   foodName,
 }: FoodDetailRestaurantCardProps) {
   const highlight = getMockReviewHighlight(restaurant, foodName)
-  const display = getRestaurantDisplayRating(restaurant)
+  const display = getBrandListDisplayRating(restaurant)
 
   return (
     <Link
@@ -35,24 +36,23 @@ export default function FoodDetailRestaurantCard({
       <RestaurantThumb
         name={restaurant.name}
         imageUrl={restaurant.image_url}
-        fallbackUrl={restaurant.logo_url}
         className="food-detail-restaurant-card__thumb"
       />
 
       <div className="food-detail-restaurant-card__main">
         <div className="food-detail-restaurant-card__header">
           <h3 className="food-detail-restaurant-card__name">{restaurant.name}</h3>
-          {restaurant.area && <span className="badge">{restaurant.area}</span>}
+          {restaurant.branch_count > 1 && (
+            <span className="badge">{restaurant.branch_count} locations</span>
+          )}
         </div>
+        <BrandAreaTags areas={restaurant.areas} />
         <DetailMeta
           rating={display.rating}
           reviewCount={display.reviewCount}
           ratingSize="sm"
           ratingSource={display.source}
         />
-        {restaurant.address && (
-          <p className="food-detail-restaurant-card__address">{restaurant.address}</p>
-        )}
       </div>
 
       <ReviewHighlightSummary

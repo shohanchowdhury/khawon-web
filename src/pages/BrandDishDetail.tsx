@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { getBrandDish, getDishReviews } from '@/api/client'
+import { getRestaurantDish, getDishReviews } from '@/api/client'
 import type { BrandDishDetailOut, ReviewOut } from '@/types/api'
 import BrandBranchLocationBadges from '@/components/BrandBranchLocationBadges'
 import BrandDishReviewForm from '@/components/BrandDishReviewForm'
@@ -14,8 +14,8 @@ import {
 } from '@/utils/formatPriceBdt'
 
 export default function BrandDishDetail() {
-  const { chainId, foodTypeId, slug } = useParams<{
-    chainId: string
+  const { id, foodTypeId, slug } = useParams<{
+    id: string
     foodTypeId: string
     slug: string
   }>()
@@ -48,7 +48,7 @@ export default function BrandDishDetail() {
   )
 
   useEffect(() => {
-    if (!chainId || !foodTypeId || !slug) {
+    if (!id || !foodTypeId || !slug) {
       setLoading(false)
       setError('Missing dish reference.')
       return
@@ -57,7 +57,7 @@ export default function BrandDishDetail() {
     setLoading(true)
     setError('')
 
-    getBrandDish(chainId, foodTypeId, slug)
+    getRestaurantDish(id, foodTypeId, slug)
       .then((detail) => {
         setDish(detail)
         loadReviews(detail)
@@ -68,7 +68,7 @@ export default function BrandDishDetail() {
         setReviews([])
       })
       .finally(() => setLoading(false))
-  }, [chainId, foodTypeId, slug, loadReviews])
+  }, [id, foodTypeId, slug, loadReviews])
 
   function handleReviewSubmitted() {
     if (dish) loadReviews(dish)

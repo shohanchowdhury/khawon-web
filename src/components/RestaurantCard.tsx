@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom'
-import type { RestaurantOut } from '@/types/api'
+import type { BrandListOut } from '@/types/api'
+import BrandAreaTags from '@/components/BrandAreaTags'
 import FoodImage from '@/components/FoodImage'
 import StarRating from '@/components/StarRating'
 import { buildRestaurantLink } from '@/utils/restaurantLink'
-import { getRestaurantDisplayRating } from '@/utils/restaurantDisplay'
+import { getBrandListDisplayRating } from '@/utils/restaurantDisplay'
 
 interface RestaurantCardProps {
-  restaurant: RestaurantOut
+  restaurant: BrandListOut
   foodTypeId?: number
   searchQuery?: string
   showFoodTypes?: boolean
@@ -20,7 +21,7 @@ export default function RestaurantCard({
   showFoodTypes = false,
   showImage = true,
 }: RestaurantCardProps) {
-  const display = getRestaurantDisplayRating(restaurant)
+  const display = getBrandListDisplayRating(restaurant)
 
   return (
     <Link
@@ -31,15 +32,17 @@ export default function RestaurantCard({
         <FoodImage
           name={restaurant.name}
           imageUrl={restaurant.image_url}
-          fallbackUrl={restaurant.logo_url}
           className="restaurant-card__image"
         />
       )}
       <div className="restaurant-card__body">
         <div className="restaurant-card__header">
           <h3>{restaurant.name}</h3>
-          {restaurant.area && <span className="badge">{restaurant.area}</span>}
+          {restaurant.branch_count > 1 && (
+            <span className="badge">{restaurant.branch_count} locations</span>
+          )}
         </div>
+        <BrandAreaTags areas={restaurant.areas} />
         <div className="restaurant-card__meta">
           <StarRating rating={display.rating} />
           <span className="review-count">
@@ -55,9 +58,6 @@ export default function RestaurantCard({
               <span key={ft.id} className="badge badge--soft">{ft.name}</span>
             ))}
           </div>
-        )}
-        {restaurant.address && (
-          <p className="restaurant-card__address">{restaurant.address}</p>
         )}
       </div>
     </Link>

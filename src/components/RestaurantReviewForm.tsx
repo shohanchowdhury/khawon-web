@@ -2,18 +2,27 @@ import { useState, type FormEvent } from 'react'
 import { submitRestaurantReview } from '@/api/client'
 import { useAuth } from '@/context/AuthContext'
 import { useAuthModal } from '@/context/AuthModalContext'
+import type { RestaurantSummaryOut } from '@/types/api'
+import { getBranchLocationLabel } from '@/utils/brandLink'
 
 interface RestaurantReviewFormProps {
-  restaurantId: number
+  chainId: number
+  branches: RestaurantSummaryOut[]
+  brandName?: string
   onSubmitted?: () => void
 }
 
 export default function RestaurantReviewForm({
-  restaurantId,
+  chainId,
+  branches,
+  brandName,
   onSubmitted,
 }: RestaurantReviewFormProps) {
   const { isAuthenticated } = useAuth()
   const { openAuthModal } = useAuthModal()
+  const [branchId, setBranchId] = useState<number | ''>(() =>
+    branches.length === 1 && branches[0] != null ? branches[0].id : '',
+  )
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -35,16 +44,26 @@ export default function RestaurantReviewForm({
     )
   }
 
+  if (branches.length === 0) {
+    return null
+  }
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (branchId === '') {
+      setError('Pick the location you visited.')
+      return
+    }
     setSubmitting(true)
     setError('')
 
     try {
-      await submitRestaurantReview(restaurantId, {
+      await submitRestaurantReview(chainId, {
+        branch_id: branchId,
         rating,
         comment: comment.trim() || undefined,
       })
+      setBranchId(branches.length === 1 && branches[0] != null ? branches[0].id : '')
       setRating(5)
       setComment('')
       onSubmitted?.()
@@ -58,6 +77,32 @@ export default function RestaurantReviewForm({
   return (
     <form className="review-form" onSubmit={handleSubmit}>
       <h3>Review this restaurant</h3>
+      {branches.length > 1 && (
+        <p className="muted review-form__hint">
+          Reviews are tied to the location you visited.
+        </p>
+      )}
+
+      {branches.length > 1 && (
+        <label>
+          Location
+          <select
+            value={branchId}
+            onChange={(e) => setBranchId(e.target.value ? Number(e.target.value) : '')}
+            required
+          >
+            <option value="">Which location did you visit?</option>
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {getBranchLocationLabel(
+                  { area: branch.area, restaurant_name: branch.name },
+                  brandName,
+                )}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
 
       <label>
         Rating

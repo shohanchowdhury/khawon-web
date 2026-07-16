@@ -7,9 +7,10 @@ import type {
   FoodTypeUpdatePayload,
   PlaceSearchResult,
   RestaurantCreatePayload,
-  RestaurantOut,
   RestaurantPhotoUpdatePayload,
   RestaurantCatalogueResult,
+  BranchResolveOut,
+  BrandListOut,
   ReviewCreate,
   ReviewOut,
   ReviewListResult,
@@ -24,7 +25,9 @@ import type {
   DishSearchResult,
   DishCompareResult,
   BrandDetailOut,
+  BrandDishOut,
   BrandDishDetailOut,
+  RestaurantSummaryOut,
   FoodSubTypeListResult,
 } from '@/types/api'
 
@@ -133,16 +136,14 @@ export function compareDish(
   )
 }
 
-export function getBrand(chainId: number | string): Promise<BrandDetailOut> {
-  return request(`/brands/${chainId}`)
-}
-
-export function getBrandDish(
+export function getRestaurantDish(
   chainId: number | string,
   foodTypeId: number | string,
   slug: string,
 ): Promise<BrandDishDetailOut> {
-  return request(`/brands/${chainId}/dishes/${foodTypeId}/${encodeURIComponent(slug)}`)
+  return request(
+    `/restaurants/${chainId}/dishes/${foodTypeId}/${encodeURIComponent(slug)}`,
+  )
 }
 
 export function getDish(id: number | string): Promise<DishOut> {
@@ -160,8 +161,12 @@ export function getDishReviews(
   return request(`/dishes/${id}/reviews${query ? `?${query}` : ''}`)
 }
 
-export function getRestaurant(id: number | string): Promise<RestaurantOut> {
+export function getRestaurant(id: number | string): Promise<BrandDetailOut> {
   return request(`/restaurants/${id}`)
+}
+
+export function resolveBranch(branchId: number | string): Promise<BranchResolveOut> {
+  return request(`/branches/${branchId}`)
 }
 
 export function getRestaurantReviews(
@@ -175,8 +180,13 @@ export function getRestaurantReviews(
   return request(`/restaurants/${id}/reviews${query ? `?${query}` : ''}`)
 }
 
-export function getRestaurantDishes(id: number | string): Promise<DishOut[]> {
-  return request(`/restaurants/${id}/dishes`)
+export function getRestaurantMenu(id: number | string): Promise<BrandDishOut[]> {
+  return request(`/restaurants/${id}/menu`)
+}
+
+/** @deprecated Use getRestaurantMenu — kept for branch admin inspection. */
+export function getBranchDishes(branchId: number | string): Promise<DishOut[]> {
+  return request(`/branches/${branchId}/dishes`)
 }
 
 export function submitRestaurantReview(
@@ -225,7 +235,11 @@ export function getFoodCatalogue(query = ''): Promise<FoodTypePopularOut[]> {
   return request(`/food-types/catalogue${params}`)
 }
 
-export function listRestaurants(): Promise<RestaurantOut[]> {
+export function listBranches(): Promise<RestaurantSummaryOut[]> {
+  return request('/branches/')
+}
+
+export function listRestaurants(): Promise<BrandListOut[]> {
   return request('/restaurants/')
 }
 
@@ -337,8 +351,8 @@ function buildRestaurantFormData(data: RestaurantCreatePayload): FormData {
   return body
 }
 
-export function createRestaurant(data: RestaurantCreatePayload): Promise<RestaurantOut> {
-  return request('/restaurants/', {
+export function createRestaurant(data: RestaurantCreatePayload): Promise<RestaurantSummaryOut> {
+  return request('/branches/', {
     method: 'POST',
     body: buildRestaurantFormData(data),
   })
@@ -347,8 +361,8 @@ export function createRestaurant(data: RestaurantCreatePayload): Promise<Restaur
 export function updateRestaurant(
   id: number | string,
   data: RestaurantCreatePayload,
-): Promise<RestaurantOut> {
-  return request(`/restaurants/${id}`, {
+): Promise<RestaurantSummaryOut> {
+  return request(`/branches/${id}`, {
     method: 'PUT',
     body: buildRestaurantFormData(data),
   })
@@ -357,11 +371,11 @@ export function updateRestaurant(
 export function updateRestaurantPhoto(
   id: number | string,
   payload: RestaurantPhotoUpdatePayload,
-): Promise<RestaurantOut> {
+): Promise<RestaurantSummaryOut> {
   const body = new FormData()
   if (payload.google_photo_name) body.append('google_photo_name', payload.google_photo_name)
   if (payload.image) body.append('image', payload.image)
-  return request(`/restaurants/${id}/photo`, {
+  return request(`/branches/${id}/photo`, {
     method: 'PUT',
     body,
   })

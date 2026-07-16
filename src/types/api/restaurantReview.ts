@@ -1,6 +1,7 @@
 /** Mirrors khawon-api/schemas.py — RestaurantReview* */
 
 export interface RestaurantReviewCreate {
+  branch_id: number
   rating: number
   comment?: string
 }
@@ -8,6 +9,8 @@ export interface RestaurantReviewCreate {
 export interface RestaurantReviewOut {
   id: number
   restaurant_id: number
+  branch_name: string | null
+  branch_area: string | null
   username: string
   rating: number
   comment: string | null

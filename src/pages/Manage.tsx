@@ -3,7 +3,7 @@ import { Link, Navigate, useLocation } from 'react-router-dom'
 import {
   getFoodCatalogue,
   getPlaceDetails,
-  listRestaurants,
+  listBranches,
   listFoodTypes,
   searchFoodImages,
   searchPlaces,
@@ -16,7 +16,7 @@ import type {
   FoodTypeOut,
   FoodTypePopularOut,
   PlaceSearchResult,
-  RestaurantOut,
+  RestaurantSummaryOut,
 } from '@/types/api'
 import ContributeForms from '@/components/ContributeForms'
 import FoodImage from '@/components/FoodImage'
@@ -128,8 +128,8 @@ function FoodPhotoEditor({ food, onSaved }: FoodPhotoEditorProps) {
 }
 
 interface RestaurantPhotoEditorProps {
-  restaurant: RestaurantOut
-  onSaved: (updated: RestaurantOut) => void
+  restaurant: RestaurantSummaryOut
+  onSaved: (updated: RestaurantSummaryOut) => void
 }
 
 function RestaurantPhotoEditor({ restaurant, onSaved }: RestaurantPhotoEditorProps) {
@@ -251,7 +251,7 @@ function RestaurantPhotoEditor({ restaurant, onSaved }: RestaurantPhotoEditorPro
 export default function Manage() {
   const { isAuthenticated, loading } = useAuth()
   const [foods, setFoods] = useState<FoodTypePopularOut[]>([])
-  const [restaurants, setRestaurants] = useState<RestaurantOut[]>([])
+  const [restaurants, setRestaurants] = useState<RestaurantSummaryOut[]>([])
   const [foodTypes, setFoodTypes] = useState<FoodTypeOut[]>([])
   const [pageLoading, setPageLoading] = useState(true)
   const [error, setError] = useState('')
@@ -259,7 +259,7 @@ export default function Manage() {
   const [restaurantPhotoEditorId, setRestaurantPhotoEditorId] = useState<number | null>(null)
 
   useEffect(() => {
-    Promise.all([getFoodCatalogue(), listRestaurants(), listFoodTypes()])
+    Promise.all([getFoodCatalogue(), listBranches(), listFoodTypes()])
       .then(([foodList, restaurantList, typeList]) => {
         setFoods(foodList)
         setRestaurants(restaurantList)
@@ -275,7 +275,7 @@ export default function Manage() {
     )
   }
 
-  function handleRestaurantPhotoSaved(updated: RestaurantOut) {
+  function handleRestaurantPhotoSaved(updated: RestaurantSummaryOut) {
     setRestaurants((prev) =>
       prev.map((item) => (item.id === updated.id ? { ...item, ...updated } : item)),
     )
@@ -292,7 +292,7 @@ export default function Manage() {
     setFoodTypes((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)))
   }
 
-  function handleRestaurantCreated(created: RestaurantOut) {
+  function handleRestaurantCreated(created: RestaurantSummaryOut) {
     setRestaurants((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)))
   }
 

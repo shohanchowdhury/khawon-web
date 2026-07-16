@@ -142,7 +142,8 @@ export default function FoodDetail() {
                   titleAnchorRef={setTitleAnchor}
                 />
                 <FoodRestaurantSection
-                  food={detail.food_type}
+                  foodName={detail.food_type.name}
+                  foodTypeId={detail.food_type.id}
                   restaurants={detail.restaurants}
                   searchQuery={searchQuery || undefined}
                 />
